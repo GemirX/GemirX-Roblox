@@ -1,88 +1,262 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-    <meta name="google-site-verification" content="xQdXS0w3a-svtFWtcYaiCCx4Hfwmp9zbcgm2ksn3VFY" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyberpunk Game Hub</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; }
-        body { background: #060913; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-
-        .loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: 'Orbitron', sans-serif; color: #00f3ff; }
-        .spinner { border: 4px solid rgba(0, 243, 255, 0.1); border-left-color: #00f3ff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        .auth-container { display: none; justify-content: center; align-items: center; min-height: 100vh; width: 100%; padding: 15px; }
-        .auth-box { background: rgba(10,15,30,0.95); border: 2px solid #00f3ff; padding: 30px 20px; border-radius: 12px; width: 100%; max-width: 360px; box-shadow: 0 0 25px rgba(0,243,255,0.4); text-align: center; }
-        .auth-box h2 { font-family: 'Orbitron', sans-serif; color: #00f3ff; margin-bottom: 15px; font-size: 20px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #00f3ff; color: #fff; border-radius: 6px; outline: none; font-size: 14px; }
-        .btn-auth { width: 100%; padding: 12px; background: #00f3ff; border: none; font-weight: bold; cursor: pointer; border-radius: 6px; color: #000; margin-top: 10px; font-family: 'Orbitron', sans-serif; }
-        .toggle { margin-top: 15px; color: #8a99ad; font-size: 13px; }
-        .toggle a { color: #00f3ff; cursor: pointer; text-decoration: underline; }
-
-        .platform { display: none; width: 100%; max-width: 1100px; padding: 15px; }
-        .navbar { display: flex; justify-content: space-between; align-items: center; background: rgba(13,20,38,0.8); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 15px 20px; margin-bottom: 20px; backdrop-filter: blur(10px); flex-wrap: wrap; gap: 15px; }
-        .logo { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 900; color: #00f3ff; text-shadow: 0 0 10px rgba(0,243,255,0.5); }
-        .nav-links { display: flex; gap: 12px; flex-wrap: wrap; }
-        .nav-btn { color: #a0aec0; text-decoration: none; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 6px; }
-        .nav-btn:hover, .nav-btn.active { color: #00f3ff; text-shadow: 0 0 8px #00f3ff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #080b10; color: #fff; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
         
-        .user-section { display: flex; align-items: center; gap: 12px; }
-        .score-badge { background: rgba(0,243,255,0.1); border: 1px solid #00f3ff; padding: 6px 12px; border-radius: 20px; color: #00f3ff; font-weight: 700; font-size: 14px; }
-        .boost-badge { background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; display: none; }
-        .btn-logout { background: transparent; border: 1px solid #ff003c; color: #ff003c; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
-
-        .avatar-container { position: relative; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
-        .avatar-img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
-        .avatar-frame { position: absolute; width: 45px; height: 45px; border-radius: 50%; pointer-events: none; display: none; }
-        .avatar-frame.active { display: block; border: 2px solid #00f3ff; box-shadow: 0 0 10px #00f3ff, inset 0 0 10px #00f3ff; animation: frameGlow 1.5s infinite alternate; }
-        @keyframes frameGlow { from { box-shadow: 0 0 5px #00f3ff, inset 0 0 5px #00f3ff; } to { box-shadow: 0 0 15px #f59e0b, inset 0 0 15px #f59e0b; border-color: #f59e0b; } }
-
-        .profile-avatar-big { position: relative; width: 100px; height: 100px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; }
-        .profile-avatar-big img { width: 85px; height: 85px; border-radius: 50%; object-fit: cover; }
-        .profile-avatar-big .avatar-frame { width: 100px; height: 100px; border-radius: 50%; border-width: 3px; }
-
-        .tab-content { display: none; }
+        /* Üst Menü */
+        .navbar { display: flex; justify-content: space-between; align-items: center; background: #111827; padding: 15px 20px; border-radius: 10px; border: 1px solid #1f293d; margin-bottom: 20px; }
+        .logo { font-size: 20px; font-weight: bold; color: #00f3ff; text-shadow: 0 0 8px rgba(0,243,255,0.4); }
+        .user-stats { display: flex; align-items: center; gap: 15px; }
+        .pts-badge { background: #00f3ff1a; color: #00f3ff; border: 1px solid #00f3ff; padding: 6px 12px; border-radius: 20px; font-weight: bold; }
+        .nav-links { display: flex; gap: 10px; margin-bottom: 20px; }
+        .nav-btn { background: #1f293d; color: #9ca3af; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .nav-btn:hover, .nav-btn.active { background: #00f3ff; color: #000; }
+        
+        /* Sekme İçerikleri */
+        .tab-content { display: none; background: #111827; padding: 20px; border-radius: 10px; border: 1px solid #1f293d; }
         .tab-content.active { display: block; }
+        .section-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #00f3ff; }
+        
+        /* Oyun Kartları */
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .game-card { background: #1a2332; border: 1px solid #2d3748; padding: 15px; border-radius: 8px; text-align: center; }
+        .game-card h3 { margin-bottom: 10px; font-size: 16px; }
+        .game-card p { font-size: 13px; color: #a0aec0; margin-bottom: 15px; }
+        
+        /* Form Elemanları ve Butonlar */
+        input, select { width: 100%; padding: 10px; margin-bottom: 10px; background: #080b10; border: 1px solid #2d3748; color: #fff; border-radius: 5px; outline: none; }
+        .play-btn { width: 100%; padding: 10px; background: #00f3ff; color: #000; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .play-btn:hover { opacity: 0.9; }
+        .card-form { background: #1a2332; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #2d3748; }
+    </style>
+</head>
+<body>
 
-        .hero-banner { background: linear-gradient(135deg, rgba(0,243,255,0.1) 0%, rgba(255,0,60,0.1) 100%); border: 1px solid rgba(0,243,255,0.2); border-radius: 16px; padding: 25px 20px; text-align: center; margin-bottom: 20px; }
-        .hero-banner h1 { font-family: 'Orbitron', sans-serif; font-size: 22px; color: #fff; margin-bottom: 8px; }
-        .hero-banner p { color: #a0aec0; font-size: 14px; }
+    <div class="container">
+        <!-- HEADER -->
+        <div class="navbar">
+            <div class="logo">CYBERHUB</div>
+            <div class="user-stats">
+                <div class="pts-badge"><span id="userPoints">0</span> PTS</div>
+                <div id="displayUsername" style="font-weight: bold;">Giriş Yapılmadı</div>
+            </div>
+        </div>
 
-        .section-title { font-family: 'Orbitron', sans-serif; font-size: 18px; color: #00f3ff; margin-bottom: 15px; }
-        .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .game-card { background: rgba(13,20,38,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 15px; text-align: center; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
-        .game-card:hover { border-color: #00f3ff; transform: translateY(-3px); box-shadow: 0 5px 20px rgba(0,243,255,0.2); }
-        .game-card h3 { font-family: 'Orbitron', sans-serif; font-size: 15px; color: #fff; margin-bottom: 8px; }
-        .game-card p { color: #718096; font-size: 13px; margin-bottom: 15px; }
-        .play-btn { background: linear-gradient(90deg, #00f3ff, #0066ff); color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; width: 100%; font-size: 13px; }
+        <!-- NAVIGASYON -->
+        <div class="nav-links">
+            <button class="nav-btn active" onclick="showTab('tab-games')">🎮 OYUNLAR</button>
+            <button class="nav-btn" onclick="showTab('tab-shop')">🎁 MAĞAZA</button>
+            <button class="nav-btn" onclick="showTab('tab-admin')">⚡ ADMIN</button>
+            <button class="nav-btn" onclick="showTab('tab-auth')">🔑 HESAP</button>
+        </div>
 
-        .locked-card { opacity: 0.5; border-color: #ff003c !important; }
-        .lock-badge { position: absolute; top: 10px; right: 10px; background: #ff003c; color: #fff; padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+        <!-- OYUNLAR -->
+        <div id="tab-games" class="tab-content active">
+            <div class="section-title">MEVCUT OYUNLAR</div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <h3>NEON CLICKER</h3>
+                    <p>Tıkladıkça puan kazan.</p>
+                    <button class="play-btn" id="btnClicker">+1 PUAN AL</button>
+                </div>
+            </div>
+        </div>
 
-        .chat-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; height: 320px; padding: 12px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .chat-msg { background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 8px; font-size: 13px; border-left: 3px solid #00f3ff; word-break: break-word; display: flex; justify-content: space-between; align-items: center; }
-        .chat-msg b { color: #00f3ff; margin-right: 5px; }
-        .chat-user-info { display: flex; align-items: center; gap: 8px; }
-        .chat-avatar-mini { position: relative; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; }
-        .chat-avatar-mini img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
-        .chat-avatar-mini .avatar-frame { width: 26px; height: 26px; border-radius: 50%; border-width: 1px; }
+        <!-- MAĞAZA -->
+        <div id="tab-shop" class="tab-content">
+            <div class="section-title">SİTE MAĞAZASI</div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <h3>SAYI TAHMİN OYUNU</h3>
+                    <p>500 PTS ile kalıcı olarak aç.</p>
+                    <button class="play-btn">500 PTS İLE AÇ</button>
+                </div>
+            </div>
+        </div>
 
-        .chat-input-area { display: flex; gap: 8px; }
+        <!-- ADMIN PANELİ -->
+        <div id="tab-admin" class="tab-content">
+            <div class="section-title" style="color: #ff003c;">YÖNETİCİ KONTROL PANELİ</div>
+            <div class="card-form">
+                <h3>Oyuncuya Puan Ekle / Çıkar</h3>
+                <input type="text" id="admTargetUser" placeholder="Kullanıcı Adı veya E-Posta">
+                <input type="number" id="admScoreAmount" placeholder="Miktar (Örn: 5000)">
+                <button class="play-btn" id="btnAdmUpdateScore">PUANI GÜNCELLE</button>
+            </div>
+        </div>
 
-        .leaderboard-table { width: 100%; border-collapse: collapse; background: rgba(13,20,38,0.6); border-radius: 12px; overflow: hidden; border: 1px solid rgba(0,243,255,0.2); font-size: 14px; }
-        .leaderboard-table th, .leaderboard-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .leaderboard-table th { background: rgba(0,243,255,0.1); color: #00f3ff; font-family: 'Orbitron', sans-serif; font-size: 12px; }
+        <!-- KAYIT & GİRİŞ -->
+        <div id="tab-auth" class="tab-content">
+            <div class="section-title">GİRİŞ YAP / KAYIT OL</div>
+            <div class="card-form">
+                <input type="text" id="authUsername" placeholder="Kullanıcı Adı (Sadece Kayıtta)">
+                <input type="email" id="authEmail" placeholder="E-Posta Adresi">
+                <input type="password" id="authPassword" placeholder="Şifre">
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button class="play-btn" id="btnLogin">GİRİŞ YAP</button>
+                    <button class="play-btn" id="btnRegister" style="background:#10b981; color:#fff;">KAYIT OL</button>
+                </div>
+                <div id="authMsg" style="margin-top: 10px; font-weight: bold;"></div>
+            </div>
+        </div>
+    </div>
 
-        .inventory-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 15px; margin-top: 20px; }
-        .inventory-list { list-style: none; padding: 0; }
-        .inventory-item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; margin-top: 5px; border-left: 3px solid #00f3ff; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+    <!-- FIREBASE MODULE SCRIPT -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, getDocs, collection, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        .wheel-container { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; width: 100%; }
-        .wheel-pointer { width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #ff003c; position: absolute; top: -8px; z-index: 10; }
-        #wheelCanvas { border: 4px solid #00f3ff; border-radius: 50%; box-shadow: 0 0 20px rgba(0,243,255,0.4); max-width: 100%; height: auto; }
+        // Firebase Yapılandırman
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-        .card-form { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 18px; max-width: 500px; margin: 0 auto 15px auto; text-align: center; }
-        .card-form h3 { font-size: 16px
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const ADMIN_EMAIL = "gemirx.roblox.1717@gmail.com";
+        let currentUserData = null;
+
+        // Oturum Durumu Takibi
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if (userDoc.exists()) {
+                    currentUserData = userDoc.data();
+                    document.getElementById('userPoints').innerText = currentUserData.score || 0;
+                    document.getElementById('displayUsername').innerText = currentUserData.username || user.email;
+                }
+            } else {
+                document.getElementById('userPoints').innerText = "0";
+                document.getElementById('displayUsername').innerText = "Giriş Yapılmadı";
+            }
+        });
+
+        // BENZERSIZ ISIM KONTROLLÜ KAYIT
+        document.getElementById('btnRegister').onclick = async () => {
+            const email = document.getElementById('authEmail').value.trim();
+            const pass = document.getElementById('authPassword').value;
+            const username = document.getElementById('authUsername').value.trim();
+            const msg = document.getElementById('authMsg');
+
+            if(!email || !pass || !username) {
+                msg.innerText = "Lütfen tüm alanları doldurun!";
+                msg.style.color = "red";
+                return;
+            }
+
+            try {
+                // 1. Kullanıcı adı benzersiz mi kontrol et
+                const q = query(collection(db, "users"), where("username", "==", username));
+                const snap = await getDocs(q);
+
+                if (!snap.empty) {
+                    msg.innerText = "Hata: Bu kullanıcı adı başkası tarafından alınmış!";
+                    msg.style.color = "red";
+                    return;
+                }
+
+                // 2. Hesabı oluştur
+                const res = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(res.user, { displayName: username });
+
+                // 3. Firestore kaydını yap
+                await setDoc(doc(db, "users", res.user.uid), {
+                    username: username,
+                    email: email,
+                    score: 0,
+                    isAdmin: email === ADMIN_EMAIL
+                });
+
+                msg.innerText = "Kayıt Başarılı!";
+                msg.style.color = "#10b981";
+            } catch (err) {
+                msg.innerText = "Hata: " + err.message;
+                msg.style.color = "red";
+            }
+        };
+
+        // GİRİŞ YAPMA
+        document.getElementById('btnLogin').onclick = async () => {
+            const email = document.getElementById('authEmail').value.trim();
+            const pass = document.getElementById('authPassword').value;
+            const msg = document.getElementById('authMsg');
+
+            try {
+                await signInWithEmailAndPassword(auth, email, pass);
+                msg.innerText = "Giriş Başarılı!";
+                msg.style.color = "#10b981";
+            } catch (err) {
+                msg.innerText = "Hata: " + err.message;
+                msg.style.color = "red";
+            }
+        };
+
+        // TIKLAMA OYUNU (PUAN ARTIRMA)
+        document.getElementById('btnClicker').onclick = async () => {
+            if(!auth.currentUser) return alert("Önce giriş yapmalısınız!");
+            
+            const userRef = doc(db, "users", auth.currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            
+            if(userSnap.exists()){
+                const newScore = (userSnap.data().score || 0) + 1;
+                await setDoc(userRef, { score: newScore }, { merge: true });
+                document.getElementById('userPoints').innerText = newScore;
+            }
+        };
+
+        // ADMIN PANELİ PUAN GÜNCELLEME
+        document.getElementById('btnAdmUpdateScore').onclick = async () => {
+            const targetInput = document.getElementById('admTargetUser').value.trim();
+            const amount = parseInt(document.getElementById('admScoreAmount').value);
+
+            if (!targetInput || isNaN(amount)) return alert("Geçerli isim/e-posta ve miktar girin!");
+
+            // İsme göre ara
+            let q = query(collection(db, "users"), where("username", "==", targetInput));
+            let snap = await getDocs(q);
+
+            // Bulunamazsa e-postaya göre ara
+            if (snap.empty) {
+                q = query(collection(db, "users"), where("email", "==", targetInput));
+                snap = await getDocs(q);
+            }
+
+            if (snap.empty) {
+                alert("Kullanıcı bulunamadı!");
+                return;
+            }
+
+            snap.forEach(async (docSnap) => {
+                const currentScore = docSnap.data().score || 0;
+                await setDoc(doc(db, "users", docSnap.id), { score: currentScore + amount }, { merge: true });
+                alert(`İşlem başarılı! Yeni Puan: ${currentScore + amount}`);
+            });
+        };
+    </script>
+
+    <!-- TAB GEÇİŞ SCRIPT -->
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+    </script>
+</body>
+</html>
