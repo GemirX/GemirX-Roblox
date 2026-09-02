@@ -432,7 +432,8 @@
                         score: 0,
                         inventory: [],
                         boostUntil: 0,
-                        avatarUrl: DEFAULT_AVATAR + username
+                        avatarUrl: DEFAULT_AVATAR + username,
+                        isAdmin: email === ADMIN_EMAIL
                     });
                 } else {
                     await signInWithEmailAndPassword(auth, email, pass);
@@ -475,13 +476,18 @@
                         populateTradeSelect(myInventory);
                         checkBoost();
                         updateFrames(myInventory);
+
+                        if (user.email === ADMIN_EMAIL && !data.isAdmin) {
+                            setDoc(doc(db, "users", user.uid), { isAdmin: true }, { merge: true });
+                        }
                     } else {
                         setDoc(doc(db, "users", user.uid), {
                             username: user.displayName || user.email.split('@')[0],
                             score: 0,
                             inventory: [],
                             boostUntil: 0,
-                            avatarUrl: DEFAULT_AVATAR + (user.displayName || "User")
+                            avatarUrl: DEFAULT_AVATAR + (user.displayName || "User"),
+                            isAdmin: user.email === ADMIN_EMAIL
                         });
                     }
                 });
@@ -957,8 +963,16 @@
             });
         }
 
+        /* LİDERLİK TABLOSU SORGUSU - ADMİNLER GİZLENDİ */
         function listenLeaderboard() {
-            const q = query(collection(db, "users"), orderBy("score", "desc"), limit(10));
+            const q = query(
+                collection(db, "users"), 
+                where("isAdmin", "!=", true), 
+                orderBy("isAdmin"), 
+                orderBy("score", "desc"), 
+                limit(10)
+            );
+            
             onSnapshot(q, (snapshot) => {
                 const tbody = document.getElementById('leaderboardBody');
                 tbody.innerHTML = "";
@@ -972,6 +986,28 @@
                             <td>⚡ ${(data.score || 0).toLocaleString()}</td>
                         </tr>
                     `;
+                });
+                if (rank === 1) {
+                    tbody.innerHTML = '<tr><td colspan="3">Henüz sıralamaya giren oyuncu yok.</td></tr>';
+                }
+            }, (error) => {
+                const qFallback = query(collection(db, "users"), orderBy("score", "desc"), limit(20));
+                onSnapshot(qFallback, (snapshot) => {
+                    const tbody = document.getElementById('leaderboardBody');
+                    tbody.innerHTML = "";
+                    let rank = 1;
+                    snapshot.forEach((docSnap) => {
+                        const data = docSnap.data();
+                        if (!data.isAdmin && data.username !== "Admin") {
+                            tbody.innerHTML += `
+                                <tr>
+                                    <td>#${rank++}</td>
+                                    <td>${data.username || "Anonim"}</td>
+                                    <td>⚡ ${(data.score || 0).toLocaleString()}</td>
+                                </tr>
+                            `;
+                        }
+                    });
                 });
             });
         }
