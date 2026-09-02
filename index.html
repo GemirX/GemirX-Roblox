@@ -31,7 +31,6 @@
         
         .user-section { display: flex; align-items: center; gap: 12px; }
         .score-badge { background: rgba(0,243,255,0.1); border: 1px solid #00f3ff; padding: 6px 12px; border-radius: 20px; color: #00f3ff; font-weight: 700; font-size: 14px; }
-        .boost-badge { background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; display: none; }
         .btn-logout { background: transparent; border: 1px solid #ff003c; color: #ff003c; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
 
         .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: #00f3ff; color: #000; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Orbitron', sans-serif; box-shadow: 0 0 10px rgba(0,243,255,0.5); }
@@ -118,19 +117,19 @@
                 <div class="game-card">
                     <h3>NEON CLICKER</h3>
                     <p>Tıkladıkça anında Puan kazan.</p>
-                    <button class="play-btn" id="btnClicker">+1 PUAN AL</button>
+                    <button class="play-btn" onclick="playClicker()">+1 PUAN AL</button>
                 </div>
 
                 <div class="game-card">
                     <h3>SAYI TAHMİN OYUNU</h3>
                     <p>1 ile 10 arası sayıyı bul, +450 Puan kazan!</p>
-                    <button class="play-btn" id="btnPlayGuess">OYNA</button>
+                    <button class="play-btn" onclick="playGuessGame()">OYNA</button>
                 </div>
 
                 <div class="game-card">
                     <h3>TAŞ-KAĞIT-MAKAS</h3>
                     <p>Botu yen, +3.500 Puan kazan!</p>
-                    <button class="play-btn" id="btnPlayRps">OYNA</button>
+                    <button class="play-btn" onclick="playRPSGame()">OYNA</button>
                 </div>
             </div>
         </div>
@@ -143,7 +142,7 @@
             <div class="wheel-container">
                 <div class="wheel-pointer"></div>
                 <canvas id="wheelCanvas" width="320" height="320"></canvas>
-                <button class="play-btn" id="btnSpin" style="max-width:200px; margin-top:20px;">ÇARKI ÇEVİR (100 PTS)</button>
+                <button class="play-btn" onclick="spinWheel()" style="max-width:200px; margin-top:20px;">ÇARKI ÇEVİR (100 PTS)</button>
             </div>
         </div>
 
@@ -181,7 +180,7 @@
             </div>
             <div class="chat-input-area">
                 <input type="text" id="chatInput" placeholder="Mesajınızı yazın..." style="margin:0;">
-                <button class="play-btn" id="btnSendChat" style="width:120px;">GÖNDER</button>
+                <button class="play-btn" onclick="sendChatMessage()" style="width:120px;">GÖNDER</button>
             </div>
         </div>
 
@@ -190,7 +189,7 @@
             <div class="card-form">
                 <h3>Oyuncuyu Veritabanından Sil</h3>
                 <input type="text" id="admDeleteUser" placeholder="Silinecek Kullanıcı Adı">
-                <button class="play-btn" id="btnAdmDeleteUser" style="margin-top:10px; background:#ff003c; color:#fff;">KULLANICIYI SİL</button>
+                <button class="play-btn" onclick="deleteUserByAdmin()" style="margin-top:10px; background:#ff003c; color:#fff;">KULLANICIYI SİL</button>
             </div>
         </div>
     </div>
@@ -226,7 +225,72 @@
         const scoreVal = document.getElementById('scoreVal');
         const usernameInput = document.getElementById('username');
 
-        // Çark Çizim Mantığı
+        // Global fonksiyon tanımlamaları (HTML onclick erişebilsin diye)
+        window.playClicker = async () => {
+            await updateScore(1);
+        };
+
+        window.playGuessGame = async () => {
+            const target = Math.floor(Math.random() * 10) + 1;
+            const input = prompt("1 ile 10 arasında bir sayı tahmin edin:");
+            if (input === null) return;
+            
+            if (parseInt(input) === target) {
+                alert(`Tebrikler! Doğru bildin 🎉 Sayı: ${target}\n+450 Puan Kazandın!`);
+                await updateScore(450);
+            } else {
+                alert(`Bilemedin! Doğru cevap: ${target}`);
+            }
+        };
+
+        window.playRPSGame = async () => {
+            const choices = ['taş', 'kağıt', 'makas'];
+            const input = prompt("Seçimini yap: Taş, Kağıt veya Makas")?.toLowerCase().trim();
+            if (!input || !choices.includes(input)) return;
+
+            const bot = choices[Math.floor(Math.random() * choices.length)];
+            let result = `Sen: ${input.toUpperCase()} | Bot: ${bot.toUpperCase()}\n\n`;
+
+            if (input === bot) {
+                alert(result + "BERABERE!");
+            } else if (
+                (input === 'taş' && bot === 'makas') ||
+                (input === 'kağıt' && bot === 'taş') ||
+                (input === 'makas' && bot === 'kağıt')
+            ) {
+                alert(result + "KAZANDIN! +3.500 Puan!");
+                await updateScore(3500);
+            } else {
+                alert(result + "KAYBETTİN!");
+            }
+        };
+
+        window.sendChatMessage = async () => {
+            const input = document.getElementById('chatInput');
+            if (!input.value.trim() || !currentUser) return;
+            await addDoc(collection(db, "chats"), {
+                username: currentUser.displayName || currentUser.email.split('@')[0],
+                message: input.value.trim(),
+                timestamp: serverTimestamp()
+            });
+            input.value = '';
+        };
+
+        window.switchTab = (tabName) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById('tab-' + tabName).classList.add('active');
+            if(tabName === 'wheel') drawWheel();
+        };
+
+        async function updateScore(amount) {
+            if (!currentUser) return;
+            score += amount;
+            scoreVal.innerText = score.toLocaleString();
+            await setDoc(doc(db, "users", currentUser.uid), { score: score }, { merge: true });
+        }
+
+        // Çark Çizimi
         const canvas = document.getElementById('wheelCanvas');
         const ctx = canvas ? canvas.getContext('2d') : null;
         const options = ["50 PTS", "100 PTS", "200 PTS", "PAS", "500 PTS", "0 PTS", "1000 PTS", "25 PTS"];
@@ -256,13 +320,6 @@
                 ctx.restore();
             }
         }
-
-        window.switchTab = (tabName) => {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById('tab-' + tabName).classList.add('active');
-            if(tabName === 'wheel') drawWheel();
-        };
 
         document.getElementById('sw').onclick = () => {
             isSignUp = !isSignUp;
@@ -307,10 +364,7 @@
                 
                 const name = user.displayName || user.email.split('@')[0];
                 userName.innerText = name;
-                
-                // Profil Dairesine Baş Harfleri Yaz
-                const initials = name.substring(0, 2).toUpperCase();
-                document.getElementById('navAvatarCircle').innerText = initials;
+                document.getElementById('navAvatarCircle').innerText = name.substring(0, 2).toUpperCase();
 
                 if (user.email === ADMIN_EMAIL) {
                     document.getElementById('adminTabBtn').style.display = 'inline-block';
@@ -325,54 +379,9 @@
 
                 listenLeaderboard();
                 listenChat();
-                drawWheel();
             } else {
                 authContainer.style.display = 'flex';
                 platform.style.display = 'none';
-            }
-        });
-
-        async function updateScore(amount) {
-            score += amount;
-            scoreVal.innerText = score.toLocaleString();
-            await setDoc(doc(db, "users", currentUser.uid), { score: score }, { merge: true });
-        }
-
-        // --- BUTTONS ---
-        document.getElementById('btnClicker').addEventListener('click', () => updateScore(1));
-
-        document.getElementById('btnPlayGuess').addEventListener('click', () => {
-            const targetNumber = Math.floor(Math.random() * 10) + 1;
-            const userGuess = prompt("1 ile 10 arasında bir sayı tahmin edin:");
-            if (userGuess === null) return;
-
-            if (parseInt(userGuess) === targetNumber) {
-                alert(`TEBRİKLER! Doğru bildin 🎉 Sayı: ${targetNumber}\n+450 Puan Kazandın!`);
-                updateScore(450);
-            } else {
-                alert(`Maalesef bilemedin! Doğru cevap: ${targetNumber} idi.`);
-            }
-        });
-
-        document.getElementById('btnPlayRps').addEventListener('click', () => {
-            const choices = ['taş', 'kağıt', 'makas'];
-            const userChoice = prompt("Seçimini yap: Taş, Kağıt veya Makas")?.toLowerCase().trim();
-            if (!userChoice || !choices.includes(userChoice)) return;
-
-            const botChoice = choices[Math.floor(Math.random() * choices.length)];
-            let resultText = `Sen: ${userChoice.toUpperCase()} | Bot: ${botChoice.toUpperCase()}\n\n`;
-
-            if (userChoice === botChoice) {
-                alert(resultText + "BERABERE!");
-            } else if (
-                (userChoice === 'taş' && botChoice === 'makas') ||
-                (userChoice === 'kağıt' && botChoice === 'taş') ||
-                (userChoice === 'makas' && botChoice === 'kağıt')
-            ) {
-                alert(resultText + "KAZANDIN! +3.500 Puan!");
-                updateScore(3500);
-            } else {
-                alert(resultText + "KAYBETTİN!");
             }
         });
 
@@ -405,17 +414,6 @@
                 });
             });
         }
-
-        document.getElementById('btnSendChat').onclick = async () => {
-            const input = document.getElementById('chatInput');
-            if (!input.value.trim()) return;
-            await addDoc(collection(db, "chats"), {
-                username: currentUser.displayName || currentUser.email.split('@')[0],
-                message: input.value.trim(),
-                timestamp: serverTimestamp()
-            });
-            input.value = '';
-        };
     </script>
 </body>
 </html>
