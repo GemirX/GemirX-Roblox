@@ -3,20 +3,17 @@
 <head>
     <meta name="google-site-verification" content="xQdXS0w3a-svtFWtcYaiCCx4Hfwmp9zbcgm2ksn3VFY" />
     <meta charset="UTF-8">
-    <!-- Mobil Uyum İçin Viewport Etiketi -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyberpunk Game Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; }
         body { background: #060913; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
-        /* Yükleniyor Ekranı Stili */
         .loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: 'Orbitron', sans-serif; color: #00f3ff; }
         .spinner { border: 4px solid rgba(0, 243, 255, 0.1); border-left-color: #00f3ff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Auth Container */
         .auth-container { display: none; justify-content: center; align-items: center; min-height: 100vh; width: 100%; padding: 15px; }
         .auth-box { background: rgba(10,15,30,0.95); border: 2px solid #00f3ff; padding: 30px 20px; border-radius: 12px; width: 100%; max-width: 360px; box-shadow: 0 0 25px rgba(0,243,255,0.4); text-align: center; }
         .auth-box h2 { font-family: 'Orbitron', sans-serif; color: #00f3ff; margin-bottom: 15px; font-size: 20px; }
@@ -25,7 +22,6 @@
         .toggle { margin-top: 15px; color: #8a99ad; font-size: 13px; }
         .toggle a { color: #00f3ff; cursor: pointer; text-decoration: underline; }
 
-        /* Platform */
         .platform { display: none; width: 100%; max-width: 1100px; padding: 15px; }
         .navbar { display: flex; justify-content: space-between; align-items: center; background: rgba(13,20,38,0.8); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 15px 20px; margin-bottom: 20px; backdrop-filter: blur(10px); flex-wrap: wrap; gap: 15px; }
         .logo { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 900; color: #00f3ff; text-shadow: 0 0 10px rgba(0,243,255,0.5); }
@@ -68,28 +64,31 @@
         .inventory-list { list-style: none; padding: 0; }
         .inventory-item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; margin-top: 5px; border-left: 3px solid #00f3ff; font-size: 13px; }
 
-        /* Çark Stili */
         .wheel-container { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; width: 100%; }
         .wheel-pointer { width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #ff003c; position: absolute; top: -8px; z-index: 10; }
         #wheelCanvas { border: 4px solid #00f3ff; border-radius: 50%; box-shadow: 0 0 20px rgba(0,243,255,0.4); max-width: 100%; height: auto; }
 
-        /* Form Stilleri */
         .card-form { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 18px; max-width: 500px; margin: 0 auto 15px auto; }
         .card-form h3 { font-size: 16px; margin-bottom: 10px; }
         .btn-del { background: #ff003c; color: #fff; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
 
-        /* MOBİL ÖZEL STİLLER (Responsive) */
         @media (max-width: 768px) {
-            .navbar { flex-direction: column; align-items: center; text-align: center; gap: 12px; }
-            .nav-links { justify-content: center; width: 100%; gap: 10px 15px; }
-            .user-section { width: 100%; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
-            .hero-banner { padding: 20px 12px; }
+            body { justify-content: flex-start !important; padding: 10px 5px !important; }
+            .platform { width: 100% !important; max-width: 100% !important; padding: 5px !important; }
+            .navbar { flex-direction: column; align-items: stretch; text-align: center; padding: 12px !important; gap: 10px; }
+            .nav-links { justify-content: center; gap: 8px 12px; }
+            .nav-btn { font-size: 13px; }
+            .user-section { width: 100%; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 10px; }
+            .hero-banner { padding: 15px 10px; }
             .hero-banner h1 { font-size: 18px; }
             .hero-banner p { font-size: 12px; }
-            .games-grid { grid-template-columns: 1fr; }
-            #wheelCanvas { width: 280px !important; height: 280px !important; }
+            .games-grid { grid-template-columns: 1fr !important; gap: 12px; }
+            .game-card { width: 100%; }
+            .wheel-container { width: 100%; overflow: hidden; }
+            #wheelCanvas { width: 80vw !important; height: 80vw !important; max-width: 300px !important; max-height: 300px !important; }
             .chat-input-area { flex-direction: column; }
             .chat-input-area button { width: 100% !important; }
+            .card-form { width: 100%; }
         }
     </style>
 </head>
@@ -402,14 +401,12 @@
             }
         });
 
-        // Skor Güncelleme
         async function updateScore(amount) {
             score += amount;
             scoreVal.innerText = score.toLocaleString();
             await setDoc(doc(db, "users", currentUser.uid), { score: score }, { merge: true });
         }
 
-        // Clicker Tıklama
         document.getElementById('btnClicker').onclick = () => {
             const now = Date.now();
             if (now - lastClickTime < 80) {
@@ -430,7 +427,6 @@
             alert("+5 Ödül Puanı Aldınız!");
         };
 
-        // Çark
         const canvas = document.getElementById('wheelCanvas');
         const ctx = canvas.getContext('2d');
         const segments = [
@@ -508,7 +504,6 @@
             if (prize.value !== 0) updateScore(prize.value);
         }
 
-        // Profil
         document.getElementById('btnUpdateUsername').onclick = async () => {
             const newName = document.getElementById('profNewUsername').value.trim();
             if (!newName) return alert("Lütfen geçerli bir ad girin!");
@@ -535,7 +530,6 @@
             }
         };
 
-        // Admin
         document.getElementById('btnAdmUpdateScore').onclick = async () => {
             const targetUser = document.getElementById('admTargetUser').value.trim();
             const amount = parseInt(document.getElementById('admScoreAmount').value);
@@ -672,7 +666,6 @@
             }
         };
 
-        // Liderlik Tablosu
         function listenLeaderboard() {
             const q = query(collection(db, "users"), orderBy("score", "desc"), limit(10));
             onSnapshot(q, (snapshot) => {
@@ -692,7 +685,6 @@
             });
         }
 
-        // Sohbet
         function listenChat() {
             const q = query(collection(db, "messages"), orderBy("createdAt", "asc"), limit(50));
             onSnapshot(q, (snapshot) => {
