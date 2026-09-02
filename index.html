@@ -46,9 +46,12 @@
         .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .game-card { background: rgba(13,20,38,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 15px; text-align: center; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
         .game-card:hover { border-color: #00f3ff; transform: translateY(-3px); box-shadow: 0 5px 20px rgba(0,243,255,0.2); }
+        .game-card.locked { opacity: 0.6; }
         .game-card h3 { font-family: 'Orbitron', sans-serif; font-size: 15px; color: #fff; margin-bottom: 8px; }
         .game-card p { color: #718096; font-size: 13px; margin-bottom: 15px; }
+        
         .play-btn { background: linear-gradient(90deg, #00f3ff, #0066ff); color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; width: 100%; font-size: 13px; }
+        .play-btn.disabled { background: #1a233a; color: #4a5568; cursor: not-allowed; border: 1px solid rgba(255,255,255,0.1); }
 
         .chat-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; height: 320px; padding: 12px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
         .chat-msg { background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 8px; font-size: 13px; border-left: 3px solid #00f3ff; word-break: break-word; }
@@ -100,9 +103,9 @@
                 <a class="nav-btn" id="adminTabBtn" style="display:none; color:#ff003c;" onclick="switchTab('admin')">⚡ ADMIN</a>
             </div>
             <div class="user-section">
-                <div class="avatar-circle" id="navAvatarCircle">GR</div>
+                <div class="avatar-circle" id="navAvatarCircle">GE</div>
                 <span class="score-badge">⚡ <span id="scoreVal">0</span> PTS</span>
-                <span id="userName" style="font-weight:bold; color:#00f3ff;">...</span>
+                <span id="userName" style="font-weight:bold; color:#00f3ff;">GemirX Roblox</span>
                 <button class="btn-logout" id="btnLogout">ÇIKIŞ</button>
             </div>
         </div>
@@ -120,16 +123,16 @@
                     <button class="play-btn" onclick="playClicker()">+1 PUAN AL</button>
                 </div>
 
-                <div class="game-card">
+                <div class="game-card locked" id="cardGuess">
                     <h3>SAYI TAHMİN OYUNU</h3>
                     <p>1 ile 10 arası sayıyı bul, +450 Puan kazan!</p>
-                    <button class="play-btn" onclick="playGuessGame()">OYNA</button>
+                    <button class="play-btn disabled" id="btnGuess" onclick="playGuessGame()">KİLİTLİ</button>
                 </div>
 
-                <div class="game-card">
+                <div class="game-card locked" id="cardRPS">
                     <h3>TAŞ-KAĞIT-MAKAS</h3>
                     <p>Botu yen, +3.500 Puan kazan!</p>
-                    <button class="play-btn" onclick="playRPSGame()">OYNA</button>
+                    <button class="play-btn disabled" id="btnRPS" onclick="playRPSGame()">KİLİTLİ</button>
                 </div>
             </div>
         </div>
@@ -166,9 +169,14 @@
             <div class="section-title">SİTE MAĞAZASI</div>
             <div class="games-grid">
                 <div class="game-card">
-                    <h3>⚡ 2X BOOST</h3>
-                    <p>Puan kazancını ikiye katlar.</p>
-                    <button class="play-btn">SATIN AL</button>
+                    <h3>🔓 SAYI TAHMİN KİLİDİ</h3>
+                    <p>1.000 Puan karşılığında oyunu aç.</p>
+                    <button class="play-btn" onclick="unlockGame('guess', 1000)">1.000 PTS</button>
+                </div>
+                <div class="game-card">
+                    <h3>🔓 TAŞ-KAĞIT-MAKAS KİLİDİ</h3>
+                    <p>5.000 Puan karşılığında oyunu aç.</p>
+                    <button class="play-btn" onclick="unlockGame('rps', 5000)">5.000 PTS</button>
                 </div>
             </div>
         </div>
@@ -197,7 +205,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, collection, addDoc, deleteDoc, getDocs, query, where, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, collection, addDoc, getDocs, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const ADMIN_EMAIL = "gemirx.roblox.1717@gmail.com";
 
@@ -217,6 +225,7 @@
         let isSignUp = true;
         let score = 0;
         let currentUser = null;
+        let unlocked = { guess: false, rps: false };
 
         const loadingScreen = document.getElementById('loadingScreen');
         const authContainer = document.getElementById('authContainer');
@@ -225,12 +234,12 @@
         const scoreVal = document.getElementById('scoreVal');
         const usernameInput = document.getElementById('username');
 
-        // Global fonksiyon tanımlamaları (HTML onclick erişebilsin diye)
         window.playClicker = async () => {
             await updateScore(1);
         };
 
         window.playGuessGame = async () => {
+            if (!unlocked.guess) return alert("Bu oyun kilitli! Mağazadan kilidini açmalısın.");
             const target = Math.floor(Math.random() * 10) + 1;
             const input = prompt("1 ile 10 arasında bir sayı tahmin edin:");
             if (input === null) return;
@@ -244,6 +253,7 @@
         };
 
         window.playRPSGame = async () => {
+            if (!unlocked.rps) return alert("Bu oyun kilitli! Mağazadan kilidini açmalısın.");
             const choices = ['taş', 'kağıt', 'makas'];
             const input = prompt("Seçimini yap: Taş, Kağıt veya Makas")?.toLowerCase().trim();
             if (!input || !choices.includes(input)) return;
@@ -263,6 +273,16 @@
             } else {
                 alert(result + "KAYBETTİN!");
             }
+        };
+
+        window.unlockGame = async (gameKey, price) => {
+            if (score < price) return alert("Yetersiz Puan!");
+            if (unlocked[gameKey]) return alert("Bu oyun zaten açık!");
+
+            score -= price;
+            unlocked[gameKey] = true;
+            await setDoc(doc(db, "users", currentUser.uid), { score, unlocked }, { merge: true });
+            alert("Oyun kilidi başarıyla açıldı!");
         };
 
         window.sendChatMessage = async () => {
@@ -287,7 +307,22 @@
             if (!currentUser) return;
             score += amount;
             scoreVal.innerText = score.toLocaleString();
-            await setDoc(doc(db, "users", currentUser.uid), { score: score }, { merge: true });
+            await setDoc(doc(db, "users", currentUser.uid), { score }, { merge: true });
+        }
+
+        function updateUIUnlocks() {
+            if (unlocked.guess) {
+                document.getElementById('cardGuess').classList.remove('locked');
+                const btn = document.getElementById('btnGuess');
+                btn.classList.remove('disabled');
+                btn.innerText = "OYNA";
+            }
+            if (unlocked.rps) {
+                document.getElementById('cardRPS').classList.remove('locked');
+                const btn = document.getElementById('btnRPS');
+                btn.classList.remove('disabled');
+                btn.innerText = "OYNA";
+            }
         }
 
         // Çark Çizimi
@@ -343,6 +378,7 @@
                         username: username,
                         email: email,
                         score: 0,
+                        unlocked: { guess: false, rps: false },
                         isAdmin: email === ADMIN_EMAIL
                     });
                 } else {
@@ -372,8 +408,11 @@
 
                 onSnapshot(doc(db, "users", user.uid), (docSnap) => {
                     if (docSnap.exists()) {
-                        score = docSnap.data().score || 0;
+                        const data = docSnap.data();
+                        score = data.score || 0;
+                        unlocked = data.unlocked || { guess: false, rps: false };
                         scoreVal.innerText = score.toLocaleString();
+                        updateUIUnlocks();
                     }
                 });
 
