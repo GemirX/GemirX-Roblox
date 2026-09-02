@@ -34,16 +34,16 @@
         .boost-badge { background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; display: none; }
         .btn-logout { background: transparent; border: 1px solid #ff003c; color: #ff003c; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
 
-        /* AVATAR VE ÇERÇEVE TASARIMI */
+        /* KARE AVATAR VE ÇERÇEVE TASARIMI */
         .avatar-container { position: relative; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
-        .avatar-img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
-        .avatar-frame { position: absolute; width: 45px; height: 45px; border-radius: 50%; pointer-events: none; display: none; }
+        .avatar-img { width: 38px; height: 38px; border-radius: 8px; object-fit: cover; }
+        .avatar-frame { position: absolute; width: 45px; height: 45px; border-radius: 8px; pointer-events: none; display: none; }
         .avatar-frame.active { display: block; border: 2px solid #00f3ff; box-shadow: 0 0 10px #00f3ff, inset 0 0 10px #00f3ff; animation: frameGlow 1.5s infinite alternate; }
         @keyframes frameGlow { from { box-shadow: 0 0 5px #00f3ff, inset 0 0 5px #00f3ff; } to { box-shadow: 0 0 15px #f59e0b, inset 0 0 15px #f59e0b; border-color: #f59e0b; } }
 
         .profile-avatar-big { position: relative; width: 100px; height: 100px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; }
-        .profile-avatar-big img { width: 85px; height: 85px; border-radius: 50%; object-fit: cover; }
-        .profile-avatar-big .avatar-frame { width: 100px; height: 100px; border-width: 3px; }
+        .profile-avatar-big img { width: 85px; height: 85px; border-radius: 12px; object-fit: cover; }
+        .profile-avatar-big .avatar-frame { width: 100px; height: 100px; border-radius: 12px; border-width: 3px; }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -68,8 +68,8 @@
         .chat-msg b { color: #00f3ff; margin-right: 5px; }
         .chat-user-info { display: flex; align-items: center; gap: 8px; }
         .chat-avatar-mini { position: relative; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; }
-        .chat-avatar-mini img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
-        .chat-avatar-mini .avatar-frame { width: 26px; height: 26px; border-width: 1px; }
+        .chat-avatar-mini img { width: 22px; height: 22px; border-radius: 4px; object-fit: cover; }
+        .chat-avatar-mini .avatar-frame { width: 26px; height: 26px; border-radius: 4px; border-width: 1px; }
 
         .chat-input-area { display: flex; gap: 8px; }
 
