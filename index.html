@@ -180,14 +180,14 @@
                 <div class="game-card locked-card" id="cardGuessGame">
                     <span class="lock-badge" id="badgeGuess">🔒 KİLİTLİ (500 PTS)</span>
                     <h3>SAYI TAHMİN OYUNU</h3>
-                    <p id="descGuess">1 ile 10 arası sayıyı bul, Puan kazan!</p>
+                    <p id="descGuess">1 ile 10 arası sayıyı bul, +100 Puan kazan!</p>
                     <button class="play-btn" id="btnPlayGuess" disabled style="background:#718096; cursor:not-allowed;">KİLİTLİ OYUN</button>
                 </div>
 
                 <div class="game-card locked-card" id="cardRpsGame">
                     <span class="lock-badge" id="badgeRps">🔒 KİLİTLİ (5000 PTS)</span>
                     <h3>TAŞ-KAĞIT-MAKAS (ZOR)</h3>
-                    <p id="descRps">İmkansıza yakın botu yen, Puan kazan!</p>
+                    <p id="descRps">İmkansıza yakın botu yen, +1.000 Puan kazan!</p>
                     <button class="play-btn" id="btnPlayRps" disabled style="background:#718096; cursor:not-allowed;">KİLİTLİ OYUN</button>
                 </div>
             </div>
@@ -889,7 +889,7 @@
             }
         }
 
-        /* GÜNCELLENEN SAYI TAHMİN OYUNU (1 - 10 ARASI) */
+        /* 1 - 10 ARASI SAYI TAHMİN OYUNU (+100 PUAN) */
         function playGuessGame() {
             const guess = prompt("1 ile 10 arasında bir sayı tahmin et:");
             if (!guess) return;
@@ -907,7 +907,7 @@
             }
         }
 
-        /* GÜNCELLENEN TAŞ-KAĞIT-MAKAS OYUNU (ZOR BOT / HİLELİ MOD) */
+        /* TAŞ-KAĞIT-MAKAS OYUNU - ZOR BOT (+1.000 PUAN) */
         function playRpsGame() {
             const userChoice = prompt("Seçimini yaz: (taş, kağıt, makas)").toLowerCase().trim();
             if (!['taş', 'kağıt', 'makas'].includes(userChoice)) {
@@ -922,7 +922,6 @@
             };
 
             let botChoice = "";
-            // Bot %75 ihtimalle sen ne seçersen seninkini yenecek hamleyi seçer (Zor Mod)
             if (Math.random() < 0.75) {
                 botChoice = winningMoves[userChoice];
             } else {
