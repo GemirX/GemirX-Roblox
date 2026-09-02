@@ -65,10 +65,6 @@
         .chat-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; height: 320px; padding: 12px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
         .chat-msg { background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 8px; font-size: 13px; border-left: 3px solid #00f3ff; word-break: break-word; display: flex; justify-content: space-between; align-items: center; }
         .chat-msg b { color: #00f3ff; margin-right: 5px; }
-        .chat-user-info { display: flex; align-items: center; gap: 8px; }
-        .chat-avatar-mini { position: relative; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; }
-        .chat-avatar-mini img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
-        .chat-avatar-mini .avatar-frame { width: 26px; height: 26px; border-radius: 50%; border-width: 1px; }
 
         .chat-input-area { display: flex; gap: 8px; }
 
@@ -78,7 +74,6 @@
 
         .inventory-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 15px; margin-top: 20px; }
         .inventory-list { list-style: none; padding: 0; }
-        .inventory-item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; margin-top: 5px; border-left: 3px solid #00f3ff; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
 
         .wheel-container { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; width: 100%; }
         .wheel-pointer { width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #ff003c; position: absolute; top: -8px; z-index: 10; }
@@ -86,7 +81,6 @@
 
         .card-form { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 18px; max-width: 500px; margin: 0 auto 15px auto; text-align: center; }
         .card-form h3 { font-size: 16px; margin-bottom: 10px; text-align: left; }
-        .btn-del { background: #ff003c; color: #fff; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
 
         .trade-box { background: rgba(13,20,38,0.8); border: 2px solid #00f3ff; border-radius: 12px; padding: 20px; max-width: 600px; margin: 0 auto; text-align: center; }
         .trade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
@@ -327,12 +321,18 @@
         </div>
 
         <div id="tab-admin" class="tab-content">
-            <div class="section-title" style="color:#ff003c;">⚡ YÖNETİCİ KONTROL PANELSİ</div>
+            <div class="section-title" style="color:#ff003c;">⚡ YÖNETİCİ KONTROL PANELİ</div>
             <div class="card-form">
                 <h3>Oyuncuya Puan Ekle / Çıkar</h3>
                 <input type="text" id="admTargetUser" placeholder="Kullanıcı Adı">
                 <input type="number" id="admScoreAmount" placeholder="Miktar (Örn: 500 veya -200)">
                 <button class="play-btn" id="btnAdmUpdateScore" style="margin-top:10px;">PUANI GÜNCELLE</button>
+            </div>
+
+            <div class="card-form">
+                <h3>Oyuncuyu Veritabanından Sil</h3>
+                <input type="text" id="admDeleteUser" placeholder="Silinecek Kullanıcı Adı">
+                <button class="play-btn" id="btnAdmDeleteUser" style="margin-top:10px; background:#ff003c; color:#fff;">KULLANICIYI SİL</button>
             </div>
         </div>
     </div>
@@ -345,8 +345,7 @@
             signInWithEmailAndPassword, 
             signOut, 
             onAuthStateChanged,
-            updateProfile,
-            updatePassword
+            updateProfile
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { 
             getFirestore, 
@@ -362,7 +361,6 @@
             limit, 
             onSnapshot,
             arrayUnion,
-            arrayRemove,
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -388,7 +386,6 @@
         let myInventory = [];
         let boostUntil = 0;
         let clickTimes = [];
-        let activeTradeId = null;
 
         const loadingScreen = document.getElementById('loadingScreen');
         const authContainer = document.getElementById('authContainer');
@@ -396,6 +393,48 @@
         const userName = document.getElementById('userName');
         const scoreVal = document.getElementById('scoreVal');
         const usernameInput = document.getElementById('username');
+
+        // Benzersiz Kullanıcı Adı Kontrolü
+        async function isUsernameTaken(username) {
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("username", "==", username));
+            const querySnapshot = await getDocs(q);
+            return !querySnapshot.empty;
+        }
+
+        // Liderlik Tablosu (Admin Rozeti Dahil)
+        function listenLeaderboard() {
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, orderBy("score", "desc"), limit(20));
+            
+            onSnapshot(q, (snapshot) => {
+                const leaderboardBody = document.getElementById('leaderboardBody');
+                leaderboardBody.innerHTML = '';
+                
+                let rank = 1;
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    
+                    const isAdminUser = data.isAdmin || data.email === ADMIN_EMAIL;
+                    const adminBadge = isAdminUser 
+                        ? ' <span style="background:#ff003c; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold;">⚡ ADMIN</span>' 
+                        : '';
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>#${rank}</td>
+                        <td>${data.username || 'Gizli Oyuncu'}${adminBadge}</td>
+                        <td>⚡ ${data.score ? data.score.toLocaleString() : 0}</td>
+                    `;
+                    leaderboardBody.appendChild(row);
+                    rank++;
+                });
+
+                if (rank === 1) {
+                    leaderboardBody.innerHTML = '<tr><td colspan="3">Henüz sıralamada kimse yok.</td></tr>';
+                }
+            });
+        }
 
         window.switchTab = (tabName) => {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
@@ -425,10 +464,18 @@
             
             try {
                 if(isSignUp) {
+                    const taken = await isUsernameTaken(username);
+                    if (taken) {
+                        msg.innerText = "Bu kullanıcı adı zaten alınmış! Lütfen başka bir ad seçin.";
+                        msg.style.color = "#ff003c";
+                        return;
+                    }
+
                     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
                     await updateProfile(userCredential.user, { displayName: username });
                     await setDoc(doc(db, "users", userCredential.user.uid), {
                         username: username,
+                        email: email,
                         score: 0,
                         inventory: [],
                         boostUntil: 0,
@@ -440,7 +487,7 @@
                 }
             } catch (err) {
                 msg.innerText = "Hata: " + err.message;
-                msg.style.color = "red";
+                msg.style.color = "#ff003c";
             }
         };
 
@@ -483,6 +530,7 @@
                     } else {
                         setDoc(doc(db, "users", user.uid), {
                             username: user.displayName || user.email.split('@')[0],
+                            email: user.email,
                             score: 0,
                             inventory: [],
                             boostUntil: 0,
@@ -494,12 +542,42 @@
 
                 listenLeaderboard();
                 listenChat();
-                listenTradeRequests();
             } else {
                 authContainer.style.display = 'flex';
                 platform.style.display = 'none';
             }
         });
+
+        // Admin Tarafından Kullanıcı Silme
+        document.getElementById('btnAdmDeleteUser').onclick = async () => {
+            const targetUsername = document.getElementById('admDeleteUser').value.trim();
+            if (!targetUsername) {
+                alert("Lütfen silinecek kullanıcı adını girin!");
+                return;
+            }
+
+            if (!confirm(`${targetUsername} isimli oyuncuyu silmek istediğinize emin misiniz?`)) return;
+
+            try {
+                const usersRef = collection(db, "users");
+                const q = query(usersRef, where("username", "==", targetUsername));
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    alert("Kullanıcı bulunamadı!");
+                    return;
+                }
+
+                querySnapshot.forEach(async (docSnap) => {
+                    await deleteDoc(doc(db, "users", docSnap.id));
+                });
+
+                alert(`${targetUsername} veritabanından silindi!`);
+                document.getElementById('admDeleteUser').value = '';
+            } catch (err) {
+                alert("Hata oluştu: " + err.message);
+            }
+        };
 
         function updateFrames(inventory) {
             const hasFrame = inventory.includes("Neon Profil Çerçevesi");
@@ -549,496 +627,106 @@
             clickTimes.push(now);
 
             if (clickTimes.length > 8) {
-                alert("Auto Clicker tespit edildi! Lütfen adil oynayın.");
+                alert("Auto Clicker tespit edildi!");
                 return;
             }
-
             updateScore(1);
         };
 
-        document.getElementById('btnBonus').onclick = () => {
-            updateScore(5);
-            alert("+5 Ödül Puanı Aldınız!");
-        };
-
-        const canvas = document.getElementById('wheelCanvas');
-        const ctx = canvas.getContext('2d');
-        const segments = [
-            { label: "10 PTS", value: 10, color: "#00f3ff" },
-            { label: "0 PTS", value: 0, color: "#111827" },
-            { label: "100 PTS", value: 100, color: "#ff003c" },
-            { label: "50 PTS", value: 50, color: "#00f3ff" },
-            { label: "KAYBETTİN", value: -100, color: "#ff003c" },
-            { label: "500 PTS", value: 500, color: "#f59e0b" }
-        ];
-        let startAngle = 0;
-        let isSpinning = false;
-
-        function drawWheel() {
-            const numOptions = segments.length;
-            const arcSize = (2 * Math.PI) / numOptions;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            for (let i = 0; i < numOptions; i++) {
-                const angle = startAngle + i * arcSize;
-                ctx.beginPath();
-                ctx.fillStyle = segments[i].color;
-                ctx.moveTo(160, 160);
-                ctx.arc(160, 160, 150, angle, angle + arcSize);
-                ctx.lineTo(160, 160);
-                ctx.fill();
-                ctx.stroke();
-
-                ctx.save();
-                ctx.fillStyle = "#fff";
-                ctx.font = "bold 14px Orbitron";
-                ctx.translate(160 + Math.cos(angle + arcSize / 2) * 100, 160 + Math.sin(angle + arcSize / 2) * 100);
-                ctx.rotate(angle + arcSize / 2 + Math.PI / 2);
-                ctx.fillText(segments[i].label, -ctx.measureText(segments[i].label).width / 2, 0);
-                ctx.restore();
-            }
-        }
-
-        document.getElementById('btnSpin').onclick = () => {
-            if (isSpinning) return;
-            if (score < 100) {
-                alert("Çarkı çevirmek için en az 100 Puanın olmalı!");
+        function renderInventory(inv) {
+            const list = document.getElementById('inventoryList');
+            if (inv.length === 0) {
+                list.innerHTML = '<div style="color: #718096; font-size: 13px;">Henüz hiç kilit açmadın.</div>';
                 return;
             }
+            list.innerHTML = inv.map(item => `<div class="inventory-item">✔ ${item}</div>`).join('');
+        }
 
-            score -= 100;
-            scoreVal.innerText = score.toLocaleString();
-            setDoc(doc(db, "users", currentUser.uid), { score: score }, { merge: true });
-            isSpinning = true;
-
-            let spinTime = 0;
-            const spinTimeTotal = Math.random() * 3000 + 4000;
-            let spinAngleStart = Math.random() * 10 + 10;
-
-            function rotateWheel() {
-                spinTime += 30;
-                if (spinTime >= spinTimeTotal) {
-                    isSpinning = false;
-                    calculateWheelResult();
-                    return;
-                }
-                const spinAngle = spinAngleStart - (spinTime / spinTimeTotal) * spinAngleStart;
-                startAngle += (spinAngle * Math.PI) / 180;
-                drawWheel();
-                requestAnimationFrame(rotateWheel);
+        function checkUnlockedGames(inv) {
+            if (inv.includes("Sayı Tahmin Oyunu")) {
+                const card = document.getElementById('cardGuessGame');
+                const btn = document.getElementById('btnPlayGuess');
+                const badge = document.getElementById('badgeGuess');
+                card.classList.remove('locked-card');
+                badge.style.background = '#00f3ff';
+                badge.style.color = '#000';
+                badge.innerText = 'AÇIK';
+                btn.disabled = false;
+                btn.style.background = '#00f3ff';
+                btn.style.color = '#000';
+                btn.style.cursor = 'pointer';
+                btn.innerText = 'OYNA';
             }
-            rotateWheel();
-        };
-
-        function calculateWheelResult() {
-            const degrees = (startAngle * 180 / Math.PI) % 360;
-            const arcd = 360 / segments.length;
-            const index = Math.floor((360 - degrees + 270) % 360 / arcd);
-            const prize = segments[index];
-
-            alert(`Çark durdu! Ödül: ${prize.label}`);
-            if (prize.value !== 0) updateScore(prize.value);
+            if (inv.includes("Taş-Kağıt-Makas Oyunu")) {
+                const card = document.getElementById('cardRpsGame');
+                const btn = document.getElementById('btnPlayRps');
+                const badge = document.getElementById('badgeRps');
+                card.classList.remove('locked-card');
+                badge.style.background = '#00f3ff';
+                badge.style.color = '#000';
+                badge.innerText = 'AÇIK';
+                btn.disabled = false;
+                btn.style.background = '#00f3ff';
+                btn.style.color = '#000';
+                btn.style.cursor = 'pointer';
+                btn.innerText = 'OYNA';
+            }
         }
 
-        document.getElementById('btnSendTradeReq').onclick = async () => {
-            const targetUser = document.getElementById('tradeTargetUser').value.trim();
-            const myName = currentUser.displayName || currentUser.email.split('@')[0];
-
-            if (!targetUser) return alert("Lütfen kullanıcı adı yazın!");
-            if (targetUser === myName) return alert("Kendine takas isteği gönderemezsin!");
-
-            await addDoc(collection(db, "trades"), {
-                sender: myName,
-                receiver: targetUser,
-                status: "pending",
-                senderOffer: "",
-                receiverOffer: "",
-                senderConfirm: false,
-                receiverConfirm: false,
-                createdAt: serverTimestamp()
-            });
-
-            alert(`${targetUser} kullanıcısına takas isteği gönderildi!`);
-        };
-
-        function listenTradeRequests() {
-            const myName = currentUser.displayName || currentUser.email.split('@')[0];
-            const q = query(collection(db, "trades"), where("receiver", "==", myName), where("status", "==", "pending"));
-
-            onSnapshot(q, (snapshot) => {
-                snapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    if (confirm(`${data.sender} seninle canlı takas yapmak istiyor! Kabul ediyor musun?`)) {
-                        setDoc(doc(db, "trades", docSnap.id), { status: "active" }, { merge: true });
-                        openTradeWindow(docSnap.id, false);
-                    } else {
-                        setDoc(doc(db, "trades", docSnap.id), { status: "rejected" }, { merge: true });
-                    }
-                });
-            });
-
-            const qSent = query(collection(db, "trades"), where("sender", "==", myName), where("status", "==", "active"));
-            onSnapshot(qSent, (snapshot) => {
-                snapshot.forEach((docSnap) => {
-                    openTradeWindow(docSnap.id, true);
-                });
-            });
-        }
-
-        function openTradeWindow(tradeId, isSender) {
-            activeTradeId = tradeId;
-            document.getElementById('tradeInitArea').style.display = 'none';
-            document.getElementById('tradeActiveArea').style.display = 'block';
-            switchTab('trade');
-
-            onSnapshot(doc(db, "trades", tradeId), async (docSnap) => {
-                if (!docSnap.exists()) return;
-                const data = docSnap.data();
-
-                if (data.status === 'cancelled') {
-                    alert("Takas iptal edildi!");
-                    resetTradeWindow();
-                    return;
-                }
-
-                const partnerOffer = isSender ? data.receiverOffer : data.senderOffer;
-                document.getElementById('partnerTradeOffer').innerText = partnerOffer || "Henüz eşya seçmedi...";
-
-                if (data.senderConfirm && data.receiverConfirm) {
-                    await executeTrade(data);
-                }
-            });
-        }
-
-        function populateTradeSelect(items) {
+        function populateTradeSelect(inv) {
             const select = document.getElementById('myTradeItemSelect');
             select.innerHTML = '<option value="">Eşya Seç...</option>';
-            items.forEach(item => {
+            inv.forEach(item => {
                 select.innerHTML += `<option value="${item}">${item}</option>`;
             });
         }
 
-        document.getElementById('myTradeItemSelect').onchange = async (e) => {
-            if (!activeTradeId) return;
-            const selectedItem = e.target.value;
-            const myName = currentUser.displayName || currentUser.email.split('@')[0];
-
-            const docSnap = await getDocs(query(collection(db, "trades"), where("sender", "==", myName)));
-            const isSender = !docSnap.empty;
-
-            if (isSender) {
-                await setDoc(doc(db, "trades", activeTradeId), { senderOffer: selectedItem }, { merge: true });
-            } else {
-                await setDoc(doc(db, "trades", activeTradeId), { receiverOffer: selectedItem }, { merge: true });
+        window.buyItem = async (itemName, cost) => {
+            if (score < cost) {
+                alert("Yetersiz Puan!");
+                return;
             }
-        };
-
-        document.getElementById('btnConfirmTrade').onclick = async () => {
-            if (!activeTradeId) return;
-            const myName = currentUser.displayName || currentUser.email.split('@')[0];
-            const isSender = (await getDocs(query(collection(db, "trades"), where("sender", "==", myName)))).empty === false;
-
-            if (isSender) {
-                await setDoc(doc(db, "trades", activeTradeId), { senderConfirm: true }, { merge: true });
-            } else {
-                await setDoc(doc(db, "trades", activeTradeId), { receiverConfirm: true }, { merge: true });
-            }
-
-            document.getElementById('tradeStatusText').innerText = "Diğer oyuncunun onayı bekleniyor...";
-        };
-
-        document.getElementById('btnCancelTrade').onclick = async () => {
-            if (activeTradeId) {
-                await setDoc(doc(db, "trades", activeTradeId), { status: "cancelled" }, { merge: true });
-            }
-            resetTradeWindow();
-        };
-
-        function resetTradeWindow() {
-            activeTradeId = null;
-            document.getElementById('tradeInitArea').style.display = 'block';
-            document.getElementById('tradeActiveArea').style.display = 'none';
-            document.getElementById('tradeStatusText').innerText = "Takas Yapılıyor...";
-        }
-
-        async function executeTrade(tradeData) {
-            const senderUserQ = query(collection(db, "users"), where("username", "==", tradeData.sender));
-            const receiverUserQ = query(collection(db, "users"), where("username", "==", tradeData.receiver));
-
-            const senderSnap = await getDocs(senderUserQ);
-            const receiverSnap = await getDocs(receiverUserQ);
-
-            if (!senderSnap.empty && !receiverSnap.empty) {
-                const senderDoc = senderSnap.docs[0];
-                const receiverDoc = receiverSnap.docs[0];
-
-                if (tradeData.senderOffer) {
-                    await setDoc(doc(db, "users", senderDoc.id), { inventory: arrayRemove(tradeData.senderOffer) }, { merge: true });
-                    await setDoc(doc(db, "users", receiverDoc.id), { inventory: arrayUnion(tradeData.senderOffer) }, { merge: true });
-                }
-
-                if (tradeData.receiverOffer) {
-                    await setDoc(doc(db, "users", receiverDoc.id), { inventory: arrayRemove(tradeData.receiverOffer) }, { merge: true });
-                    await setDoc(doc(db, "users", senderDoc.id), { inventory: arrayUnion(tradeData.receiverOffer) }, { merge: true });
-                }
-
-                await deleteDoc(doc(db, "trades", activeTradeId));
-                alert("🎉 TAKAS BAŞARIYLA TAMAMLANDI!");
-                resetTradeWindow();
-            }
-        }
-
-        window.buyItem = async (itemName, price) => {
-            if (itemName === "10 Dakikalık 2x Boost") {
-                if (score < price) {
-                    alert(`Yetersiz Puan! "${itemName}" için ${price.toLocaleString()} puana ihtiyacın var. Sende olan: ${score.toLocaleString()} PTS`);
-                    return;
-                }
-                if (confirm(`"${itemName}" satın almak istiyor musun?`)) {
-                    score -= price;
-                    scoreVal.innerText = score.toLocaleString();
-                    const newBoostUntil = Math.max(Date.now(), boostUntil) + (10 * 60 * 1000);
-                    
-                    await setDoc(doc(db, "users", currentUser.uid), {
-                        score: score,
-                        boostUntil: newBoostUntil
-                    }, { merge: true });
-
-                    alert("🔥 10 Dakikalık 2X Boost aktif edildi!");
-                }
+            if (myInventory.includes(itemName) && !itemName.includes("Boost")) {
+                alert("Bu eşyaya zaten sahipsin!");
                 return;
             }
 
-            if (myInventory.includes(itemName) || (itemName.includes("Sayı Tahmin") && myInventory.includes("Sayı Tahmin Oyunu")) || (itemName.includes("Taş") && myInventory.includes("Taş-Kağıt-Makas Oyunu"))) {
-                alert(`Bu ürüne zaten sahipsin!`);
-                return;
-            }
+            score -= cost;
+            await setDoc(doc(db, "users", currentUser.uid), {
+                score: score,
+                inventory: arrayUnion(itemName)
+            }, { merge: true });
 
-            if (score < price) {
-                alert(`Yetersiz Puan! "${itemName}" açmak için ${price.toLocaleString()} puana ihtiyacın var. Sende olan: ${score.toLocaleString()} PTS`);
-                return;
-            }
-
-            if (confirm(`"${itemName}" kilidini ${price.toLocaleString()} Puan karşılığında açmak istiyor musun?`)) {
-                score -= price;
-                scoreVal.innerText = score.toLocaleString();
-
-                const dbItemName = itemName.includes("Taş") ? "Taş-Kağıt-Makas Oyunu" : itemName;
-
-                try {
-                    await setDoc(doc(db, "users", currentUser.uid), {
-                        score: score,
-                        inventory: arrayUnion(dbItemName)
-                    }, { merge: true });
-
-                    alert(`Tebrikler! "${itemName}" kilidi başarıyla açıldı!`);
-                } catch (err) {
-                    alert("İşlem sırasında hata oluştu: " + err.message);
-                }
-            }
-        };
-
-        window.useBoost = async () => {
-            if (!myInventory.includes("10 Dakikalık 2x Boost")) return;
-
-            if (confirm("10 Dakikalık 2x Boost eşyanı şimdi aktifleştirmek istiyor musun?")) {
+            if (itemName.includes("Boost")) {
                 const newBoostUntil = Math.max(Date.now(), boostUntil) + (10 * 60 * 1000);
-                
-                await setDoc(doc(db, "users", currentUser.uid), {
-                    inventory: arrayRemove("10 Dakikalık 2x Boost"),
-                    boostUntil: newBoostUntil
-                }, { merge: true });
-
-                alert("🔥 2X Boost Başarıyla Aktifleştirildi!");
+                await setDoc(doc(db, "users", currentUser.uid), { boostUntil: newBoostUntil }, { merge: true });
             }
+
+            alert(`${itemName} satın alındı!`);
         };
 
-        function checkUnlockedGames(inventory) {
-            if (inventory.includes("Sayı Tahmin Oyunu")) {
-                const card = document.getElementById('cardGuessGame');
-                const badge = document.getElementById('badgeGuess');
-                const btn = document.getElementById('btnPlayGuess');
-
-                if (card) card.classList.remove('locked-card');
-                if (badge) {
-                    badge.style.background = "#00f3ff";
-                    badge.style.color = "#000";
-                    badge.innerText = "✅ AÇIK";
-                }
-                if (btn) {
-                    btn.disabled = false;
-                    btn.style.background = "linear-gradient(90deg, #00f3ff, #0066ff)";
-                    btn.style.cursor = "pointer";
-                    btn.innerText = "OYNA";
-                    btn.onclick = playGuessGame;
-                }
-            }
-
-            if (inventory.includes("Taş-Kağıt-Makas Oyunu") || inventory.includes("Taş Kağıt Makas Oyunu")) {
-                const card = document.getElementById('cardRpsGame');
-                const badge = document.getElementById('badgeRps');
-                const btn = document.getElementById('btnPlayRps');
-
-                if (card) card.classList.remove('locked-card');
-                if (badge) {
-                    badge.style.background = "#00f3ff";
-                    badge.style.color = "#000";
-                    badge.innerText = "✅ AÇIK";
-                }
-                if (btn) {
-                    btn.disabled = false;
-                    btn.style.background = "linear-gradient(90deg, #00f3ff, #0066ff)";
-                    btn.style.cursor = "pointer";
-                    btn.innerText = "OYNA";
-                    btn.onclick = playRpsGame;
-                }
-            }
-        }
-
-        /* 1 - 10 ARASI SAYI TAHMİN OYUNU (+450 PUAN) */
-        function playGuessGame() {
-            const guess = prompt("1 ile 10 arasında bir sayı tahmin et:");
-            if (!guess) return;
-            const num = parseInt(guess);
-            if (isNaN(num) || num < 1 || num > 10) {
-                alert("Lütfen 1 ile 10 arasında geçerli bir sayı girin!");
-                return;
-            }
-            const secret = Math.floor(Math.random() * 10) + 1;
-            if (num === secret) {
-                alert(`Tebrikler! Doğru tahmin (${secret}). +450 Puan Kazandın!`);
-                updateScore(450);
-            } else {
-                alert(`Yanlış tahmin! Doğru sayı: ${secret}. Tekrar dene!`);
-            }
-        }
-
-        /* TAŞ-KAĞIT-MAKAS OYUNU - ZOR BOT (+3.500 PUAN) */
-        function playRpsGame() {
-            const userChoice = prompt("Seçimini yaz: (taş, kağıt, makas)").toLowerCase().trim();
-            if (!['taş', 'kağıt', 'makas'].includes(userChoice)) {
-                alert("Lütfen sadece 'taş', 'kağıt' veya 'makas' yazın!");
-                return;
-            }
-
-            const winningMoves = {
-                'taş': 'kağıt',
-                'kağıt': 'makas',
-                'makas': 'taş'
-            };
-
-            let botChoice = "";
-            if (Math.random() < 0.75) {
-                botChoice = winningMoves[userChoice];
-            } else {
-                const choices = ['taş', 'kağıt', 'makas'];
-                botChoice = choices[Math.floor(Math.random() * 3)];
-            }
-
-            if (userChoice === botChoice) {
-                alert(`Berabere! İkiniz de "${userChoice}" seçtiniz.`);
-            } else if (
-                (userChoice === 'taş' && botChoice === 'makas') ||
-                (userChoice === 'kağıt' && botChoice === 'taş') ||
-                (userChoice === 'makas' && botChoice === 'kağıt')
-            ) {
-                alert(`İnanılmaz! Zorlu Botu yendin! Sen: ${userChoice} vs Bot: ${botChoice}. +3.500 Puan Kazandın!`);
-                updateScore(3500);
-            } else {
-                alert(`Bot seni yendi! Sen: ${userChoice} vs Bot: ${botChoice}. Zor modda kazanmak kolay değil!`);
-            }
-        }
-
-        function renderInventory(items) {
-            const invList = document.getElementById('inventoryList');
-            if (!items || items.length === 0) {
-                invList.innerHTML = '<div style="color: #718096; font-size: 13px;">Henüz hiç kilit açmadın.</div>';
-                return;
-            }
-            invList.innerHTML = "";
-            items.forEach(item => {
-                const isBoostItem = item === "10 Dakikalık 2x Boost";
-                const useBtn = isBoostItem ? `<button class="play-btn" style="width: auto; padding: 4px 10px; font-size: 11px;" onclick="useBoost()">KULLAN</button>` : '';
-                invList.innerHTML += `<div class="inventory-item"><span>🔓 <b>${item}</b></span>${useBtn}</div>`;
-            });
-        }
-
-        /* LİDERLİK TABLOSU SORGUSU - ADMİNLER GİZLENDİ */
-        function listenLeaderboard() {
-            const q = query(
-                collection(db, "users"), 
-                where("isAdmin", "!=", true), 
-                orderBy("isAdmin"), 
-                orderBy("score", "desc"), 
-                limit(10)
-            );
-            
-            onSnapshot(q, (snapshot) => {
-                const tbody = document.getElementById('leaderboardBody');
-                tbody.innerHTML = "";
-                let rank = 1;
-                snapshot.forEach((docSnap) => {
-                    const data = docSnap.data();
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>#${rank++}</td>
-                            <td>${data.username || "Anonim"}</td>
-                            <td>⚡ ${(data.score || 0).toLocaleString()}</td>
-                        </tr>
-                    `;
-                });
-                if (rank === 1) {
-                    tbody.innerHTML = '<tr><td colspan="3">Henüz sıralamaya giren oyuncu yok.</td></tr>';
-                }
-            }, (error) => {
-                const qFallback = query(collection(db, "users"), orderBy("score", "desc"), limit(20));
-                onSnapshot(qFallback, (snapshot) => {
-                    const tbody = document.getElementById('leaderboardBody');
-                    tbody.innerHTML = "";
-                    let rank = 1;
-                    snapshot.forEach((docSnap) => {
-                        const data = docSnap.data();
-                        if (!data.isAdmin && data.username !== "Admin") {
-                            tbody.innerHTML += `
-                                <tr>
-                                    <td>#${rank++}</td>
-                                    <td>${data.username || "Anonim"}</td>
-                                    <td>⚡ ${(data.score || 0).toLocaleString()}</td>
-                                </tr>
-                            `;
-                        }
-                    });
-                });
-            });
+        function drawWheel() {
+            const canvas = document.getElementById('wheelCanvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00f3ff';
+            ctx.font = '16px Orbitron';
+            ctx.textAlign = 'center';
+            ctx.fillText('Çark Görseli', canvas.width / 2, canvas.height / 2);
         }
 
         function listenChat() {
-            const q = query(collection(db, "messages"), orderBy("createdAt", "asc"), limit(50));
+            const chatRef = collection(db, "chats");
+            const q = query(chatRef, orderBy("timestamp", "desc"), limit(25));
             onSnapshot(q, (snapshot) => {
                 const chatBox = document.getElementById('chatBox');
-                chatBox.innerHTML = "";
-                snapshot.forEach((docSnap) => {
-                    const msg = docSnap.data();
-                    const isVIP = msg.isVIP ? "👑 " : "";
-                    const deleteBtn = currentUser.email === ADMIN_EMAIL 
-                        ? `<button class="btn-del" onclick="deleteMessage('${docSnap.id}')">Sil</button>` 
-                        : "";
-
-                    const userAvatar = msg.avatarUrl || (DEFAULT_AVATAR + msg.username);
-                    const hasFrameClass = msg.hasFrame ? "active" : "";
-
-                    chatBox.innerHTML += `
-                        <div class="chat-msg">
-                            <div class="chat-user-info">
-                                <div class="chat-avatar-mini">
-                                    <img src="${userAvatar}">
-                                    <div class="avatar-frame ${hasFrameClass}"></div>
-                                </div>
-                                <b>${isVIP}${msg.username}:</b> ${msg.text}
-                            </div>
-                            ${deleteBtn}
-                        </div>
-                    `;
+                chatBox.innerHTML = '';
+                snapshot.docs.reverse().forEach(docSnap => {
+                    const data = docSnap.data();
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = 'chat-msg';
+                    msgDiv.innerHTML = `<span><b>${data.username}:</b> ${data.message}</span>`;
+                    chatBox.appendChild(msgDiv);
                 });
                 chatBox.scrollTop = chatBox.scrollHeight;
             });
@@ -1046,89 +734,14 @@
 
         document.getElementById('btnSendChat').onclick = async () => {
             const input = document.getElementById('chatInput');
-            const text = input.value.trim();
-            if (!text) return;
-
-            const isVIP = myInventory.includes("VIP Chat Rolü");
-            const hasFrame = myInventory.includes("Neon Profil Çerçevesi");
-            const avatarUrl = document.getElementById('navAvatar').src;
-
-            await addDoc(collection(db, "messages"), {
+            const msg = input.value.trim();
+            if (!msg) return;
+            await addDoc(collection(db, "chats"), {
                 username: currentUser.displayName || currentUser.email.split('@')[0],
-                text: text,
-                isVIP: isVIP,
-                hasFrame: hasFrame,
-                avatarUrl: avatarUrl,
-                createdAt: serverTimestamp()
+                message: msg,
+                timestamp: serverTimestamp()
             });
-
-            input.value = "";
-        };
-
-        window.deleteMessage = async (msgId) => {
-            if (confirm("Bu mesajı silmek istediğinize emin misiniz?")) {
-                await deleteDoc(doc(db, "messages", msgId));
-            }
-        };
-
-        document.getElementById('btnUpdateAvatar').onclick = async () => {
-            const newUrl = document.getElementById('profAvatarUrl').value.trim();
-            if (!newUrl) return alert("Lütfen geçerli bir resim adresi (URL) girin!");
-
-            try {
-                await setDoc(doc(db, "users", currentUser.uid), { avatarUrl: newUrl }, { merge: true });
-                alert("Profil fotoğrafınız güncellendi!");
-                document.getElementById('profAvatarUrl').value = "";
-            } catch (e) {
-                alert("Hata: " + e.message);
-            }
-        };
-
-        document.getElementById('btnUpdateUsername').onclick = async () => {
-            const newName = document.getElementById('profNewUsername').value.trim();
-            if (!newName) return alert("Lütfen geçerli bir ad girin!");
-
-            try {
-                await updateProfile(currentUser, { displayName: newName });
-                await setDoc(doc(db, "users", currentUser.uid), { username: newName }, { merge: true });
-                userName.innerText = newName;
-                alert("Kullanıcı adınız güncellendi!");
-            } catch (e) {
-                alert("Hata: " + e.message);
-            }
-        };
-
-        document.getElementById('btnUpdatePass').onclick = async () => {
-            const newPass = document.getElementById('profNewPass').value.trim();
-            if (newPass.length < 6) return alert("Şifre en az 6 karakter olmalıdır!");
-
-            try {
-                await updatePassword(currentUser, newPass);
-                alert("Şifreniz başarıyla değiştirildi!");
-            } catch (e) {
-                alert("Hata: " + e.message);
-            }
-        };
-
-        document.getElementById('btnAdmUpdateScore').onclick = async () => {
-            const targetUser = document.getElementById('admTargetUser').value.trim();
-            const amount = parseInt(document.getElementById('admScoreAmount').value);
-
-            if (!targetUser || isNaN(amount)) return alert("Lütfen kullanıcı adını ve miktarı doğru girin!");
-
-            const q = query(collection(db, "users"), where("username", "==", targetUser));
-            const snap = await getDocs(q);
-
-            if (snap.empty) {
-                alert("Kullanıcı bulunamadı!");
-                return;
-            }
-
-            snap.forEach(async (docSnap) => {
-                const currentScore = docSnap.data().score || 0;
-                await setDoc(doc(db, "users", docSnap.id), { score: currentScore + amount }, { merge: true });
-                alert(`${targetUser} kullanıcısının puanına ${amount} eklendi/çıkarıldı.`);
-            });
+            input.value = '';
         };
     </script>
 </body>
