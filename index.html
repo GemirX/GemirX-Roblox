@@ -211,7 +211,7 @@
                 <div class="game-card">
                     <h3>🔓 TAŞ-KAĞIT-MAKAS OYUNU</h3>
                     <p>Oyunu kalıcı olarak açar (+1.000 PTS Kazandırır).</p>
-                    <button class="play-btn" style="background:#00f3ff; color:#000;" onclick="buyItem('Taş Kağıt Makas Oyunu', 5000)">5.000 PTS İLE AÇ</button>
+                    <button class="play-btn" style="background:#00f3ff; color:#000;" onclick="buyItem('Taş-Kağıt-Makas Oyunu', 5000)">5.000 PTS İLE AÇ</button>
                 </div>
                 <div class="game-card">
                     <h3>🎨 NEON PROFiL ÇERÇEVESİ</h3>
@@ -694,7 +694,7 @@
         }
 
         window.buyItem = async (itemName, price) => {
-            if (myInventory.includes(itemName)) {
+            if (myInventory.includes(itemName) || (itemName.includes("Sayı Tahmin") && myInventory.includes("Sayı Tahmin Oyunu")) || (itemName.includes("Taş") && myInventory.includes("Taş-Kağıt-Makas Oyunu"))) {
                 alert(`Bu ürüne zaten sahipsin!`);
                 return;
             }
@@ -708,10 +708,12 @@
                 score -= price;
                 scoreVal.innerText = score.toLocaleString();
 
+                const dbItemName = itemName.includes("Taş") ? "Taş-Kağıt-Makas Oyunu" : itemName;
+
                 try {
                     await setDoc(doc(db, "users", currentUser.uid), {
                         score: score,
-                        inventory: arrayUnion(itemName)
+                        inventory: arrayUnion(dbItemName)
                     }, { merge: true });
 
                     alert(`Tebrikler! "${itemName}" kilidi başarıyla açıldı!`);
@@ -727,31 +729,39 @@
                 const badge = document.getElementById('badgeGuess');
                 const btn = document.getElementById('btnPlayGuess');
 
-                card.classList.remove('locked-card');
-                badge.style.background = "#00f3ff";
-                badge.style.color = "#000";
-                badge.innerText = "✅ AÇIK";
-                btn.disabled = false;
-                btn.style.background = "linear-gradient(90deg, #00f3ff, #0066ff)";
-                btn.style.cursor = "pointer";
-                btn.innerText = "OYNA (+100 PTS)";
-                btn.onclick = playGuessGame;
+                if (card) card.classList.remove('locked-card');
+                if (badge) {
+                    badge.style.background = "#00f3ff";
+                    badge.style.color = "#000";
+                    badge.innerText = "✅ AÇIK";
+                }
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.background = "linear-gradient(90deg, #00f3ff, #0066ff)";
+                    btn.style.cursor = "pointer";
+                    btn.innerText = "OYNA (+100 PTS)";
+                    btn.onclick = playGuessGame;
+                }
             }
 
-            if (inventory.includes("Taş Kağıt Makas Oyunu")) {
+            if (inventory.includes("Taş-Kağıt-Makas Oyunu") || inventory.includes("Taş Kağıt Makas Oyunu")) {
                 const card = document.getElementById('cardRpsGame');
                 const badge = document.getElementById('badgeRps');
                 const btn = document.getElementById('btnPlayRps');
 
-                card.classList.remove('locked-card');
-                badge.style.background = "#00f3ff";
-                badge.style.color = "#000";
-                badge.innerText = "✅ AÇIK";
-                btn.disabled = false;
-                btn.style.background = "linear-gradient(90deg, #00f3ff, #0066ff)";
-                btn.style.cursor = "pointer";
-                btn.innerText = "OYNA (+1.000 PTS)";
-                btn.onclick = playRpsGame;
+                if (card) card.classList.remove('locked-card');
+                if (badge) {
+                    badge.style.background = "#00f3ff";
+                    badge.style.color = "#000";
+                    badge.innerText = "✅ AÇIK";
+                }
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.background = "linear-gradient(90deg, #00f3ff, #0066ff)";
+                    btn.style.cursor = "pointer";
+                    btn.innerText = "OYNA (+1.000 PTS)";
+                    btn.onclick = playRpsGame;
+                }
             }
         }
 
