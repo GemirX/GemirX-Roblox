@@ -17,7 +17,7 @@
         .auth-container { display: none; justify-content: center; align-items: center; min-height: 100vh; width: 100%; padding: 15px; }
         .auth-box { background: rgba(10,15,30,0.95); border: 2px solid #00f3ff; padding: 30px 20px; border-radius: 12px; width: 100%; max-width: 360px; box-shadow: 0 0 25px rgba(0,243,255,0.4); text-align: center; }
         .auth-box h2 { font-family: 'Orbitron', sans-serif; color: #00f3ff; margin-bottom: 15px; font-size: 20px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #00f3ff; color: #fff; border-radius: 6px; outline: none; font-size: 14px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #00f3ff; color: #fff; border-radius: 6px; outline: none; font-size: 14px; }
         .btn-auth { width: 100%; padding: 12px; background: #00f3ff; border: none; font-weight: bold; cursor: pointer; border-radius: 6px; color: #000; margin-top: 10px; font-family: 'Orbitron', sans-serif; }
         .toggle { margin-top: 15px; color: #8a99ad; font-size: 13px; }
         .toggle a { color: #00f3ff; cursor: pointer; text-decoration: underline; }
@@ -31,9 +31,18 @@
         
         .user-section { display: flex; align-items: center; gap: 12px; }
         .score-badge { background: rgba(0,243,255,0.1); border: 1px solid #00f3ff; padding: 6px 12px; border-radius: 20px; color: #00f3ff; font-weight: 700; font-size: 14px; }
+        .boost-badge { background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; display: none; }
         .btn-logout { background: transparent; border: 1px solid #ff003c; color: #ff003c; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
 
-        .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: #00f3ff; color: #000; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Orbitron', sans-serif; box-shadow: 0 0 10px rgba(0,243,255,0.5); }
+        .avatar-container { position: relative; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
+        .avatar-img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+        .avatar-frame { position: absolute; width: 45px; height: 45px; border-radius: 50%; pointer-events: none; display: none; }
+        .avatar-frame.active { display: block; border: 2px solid #00f3ff; box-shadow: 0 0 10px #00f3ff, inset 0 0 10px #00f3ff; animation: frameGlow 1.5s infinite alternate; }
+        @keyframes frameGlow { from { box-shadow: 0 0 5px #00f3ff, inset 0 0 5px #00f3ff; } to { box-shadow: 0 0 15px #f59e0b, inset 0 0 15px #f59e0b; border-color: #f59e0b; } }
+
+        .profile-avatar-big { position: relative; width: 100px; height: 100px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; }
+        .profile-avatar-big img { width: 85px; height: 85px; border-radius: 50%; object-fit: cover; }
+        .profile-avatar-big .avatar-frame { width: 100px; height: 100px; border-radius: 50%; border-width: 3px; }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -46,15 +55,15 @@
         .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
         .game-card { background: rgba(13,20,38,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 15px; text-align: center; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
         .game-card:hover { border-color: #00f3ff; transform: translateY(-3px); box-shadow: 0 5px 20px rgba(0,243,255,0.2); }
-        .game-card.locked { opacity: 0.6; }
         .game-card h3 { font-family: 'Orbitron', sans-serif; font-size: 15px; color: #fff; margin-bottom: 8px; }
         .game-card p { color: #718096; font-size: 13px; margin-bottom: 15px; }
-        
         .play-btn { background: linear-gradient(90deg, #00f3ff, #0066ff); color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; width: 100%; font-size: 13px; }
-        .play-btn.disabled { background: #1a233a; color: #4a5568; cursor: not-allowed; border: 1px solid rgba(255,255,255,0.1); }
+
+        .locked-card { opacity: 0.5; border-color: #ff003c !important; }
+        .lock-badge { position: absolute; top: 10px; right: 10px; background: #ff003c; color: #fff; padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
 
         .chat-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; height: 320px; padding: 12px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .chat-msg { background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 8px; font-size: 13px; border-left: 3px solid #00f3ff; word-break: break-word; }
+        .chat-msg { background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 8px; font-size: 13px; border-left: 3px solid #00f3ff; word-break: break-word; display: flex; justify-content: space-between; align-items: center; }
         .chat-msg b { color: #00f3ff; margin-right: 5px; }
 
         .chat-input-area { display: flex; gap: 8px; }
@@ -63,11 +72,39 @@
         .leaderboard-table th, .leaderboard-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .leaderboard-table th { background: rgba(0,243,255,0.1); color: #00f3ff; font-family: 'Orbitron', sans-serif; font-size: 12px; }
 
-        .wheel-container { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; width: 100%; margin-top: 10px; }
-        .wheel-pointer { width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 24px solid #ff003c; position: absolute; top: -10px; z-index: 10; }
+        .inventory-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 15px; margin-top: 20px; }
+        .inventory-list { list-style: none; padding: 0; }
+
+        .wheel-container { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; width: 100%; }
+        .wheel-pointer { width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #ff003c; position: absolute; top: -8px; z-index: 10; }
         #wheelCanvas { border: 4px solid #00f3ff; border-radius: 50%; box-shadow: 0 0 20px rgba(0,243,255,0.4); max-width: 100%; height: auto; }
 
         .card-form { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 18px; max-width: 500px; margin: 0 auto 15px auto; text-align: center; }
+        .card-form h3 { font-size: 16px; margin-bottom: 10px; text-align: left; }
+
+        .trade-box { background: rgba(13,20,38,0.8); border: 2px solid #00f3ff; border-radius: 12px; padding: 20px; max-width: 600px; margin: 0 auto; text-align: center; }
+        .trade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
+        .trade-column { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid rgba(0,243,255,0.2); }
+
+        @media (max-width: 768px) {
+            body { justify-content: flex-start !important; padding: 10px 5px !important; }
+            .platform { width: 100% !important; max-width: 100% !important; padding: 5px !important; }
+            .navbar { flex-direction: column; align-items: stretch; text-align: center; padding: 12px !important; gap: 10px; }
+            .nav-links { justify-content: center; gap: 8px 12px; }
+            .nav-btn { font-size: 13px; }
+            .user-section { width: 100%; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 10px; }
+            .hero-banner { padding: 15px 10px; }
+            .hero-banner h1 { font-size: 18px; }
+            .hero-banner p { font-size: 12px; }
+            .games-grid { grid-template-columns: 1fr !important; gap: 12px; }
+            .game-card { width: 100%; }
+            .wheel-container { width: 100%; overflow: hidden; }
+            #wheelCanvas { width: 80vw !important; height: 80vw !important; max-width: 300px !important; max-height: 300px !important; }
+            .chat-input-area { flex-direction: column; }
+            .chat-input-area button { width: 100% !important; }
+            .card-form { width: 100%; }
+            .trade-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
@@ -99,13 +136,19 @@
                 <a class="nav-btn" onclick="switchTab('wheel')">🎡 ÇARK</a>
                 <a class="nav-btn" onclick="switchTab('leaderboard')">🏆 LİDERLER</a>
                 <a class="nav-btn" onclick="switchTab('rewards')">🎁 MAĞAZA</a>
+                <a class="nav-btn" onclick="switchTab('trade')">🔄 TAKAS</a>
                 <a class="nav-btn" onclick="switchTab('chat')">💬 CHAT</a>
+                <a class="nav-btn" onclick="switchTab('profile')">👤 PROFİL</a>
                 <a class="nav-btn" id="adminTabBtn" style="display:none; color:#ff003c;" onclick="switchTab('admin')">⚡ ADMIN</a>
             </div>
             <div class="user-section">
-                <div class="avatar-circle" id="navAvatarCircle">GE</div>
+                <div class="avatar-container">
+                    <img id="navAvatar" src="https://via.placeholder.com/40" class="avatar-img">
+                    <div id="navFrame" class="avatar-frame"></div>
+                </div>
+                <span class="boost-badge" id="boostBadge">🔥 2X BOOST (<span id="boostTimer">00:00</span>)</span>
                 <span class="score-badge">⚡ <span id="scoreVal">0</span> PTS</span>
-                <span id="userName" style="font-weight:bold; color:#00f3ff;">GemirX Roblox</span>
+                <span id="userName" style="font-weight:bold; color:#00f3ff;">...</span>
                 <button class="btn-logout" id="btnLogout">ÇIKIŞ</button>
             </div>
         </div>
@@ -120,19 +163,21 @@
                 <div class="game-card">
                     <h3>NEON CLICKER</h3>
                     <p>Tıkladıkça anında Puan kazan.</p>
-                    <button class="play-btn" onclick="playClicker()">+1 PUAN AL</button>
+                    <button class="play-btn" id="btnClicker">+1 PUAN AL</button>
                 </div>
 
-                <div class="game-card locked" id="cardGuess">
+                <div class="game-card locked-card" id="cardGuessGame">
+                    <span class="lock-badge" id="badgeGuess">🔒 KİLİTLİ (500 PTS)</span>
                     <h3>SAYI TAHMİN OYUNU</h3>
-                    <p>1 ile 10 arası sayıyı bul, +450 Puan kazan!</p>
-                    <button class="play-btn disabled" id="btnGuess" onclick="playGuessGame()">KİLİTLİ</button>
+                    <p id="descGuess">1 ile 10 arası sayıyı bul, +450 Puan kazan!</p>
+                    <button class="play-btn" id="btnPlayGuess" disabled style="background:#718096; cursor:not-allowed;">KİLİTLİ OYUN</button>
                 </div>
 
-                <div class="game-card locked" id="cardRPS">
+                <div class="game-card locked-card" id="cardRpsGame">
+                    <span class="lock-badge" id="badgeRps">🔒 KİLİTLİ (5000 PTS)</span>
                     <h3>TAŞ-KAĞIT-MAKAS</h3>
-                    <p>Botu yen, +3.500 Puan kazan!</p>
-                    <button class="play-btn disabled" id="btnRPS" onclick="playRPSGame()">KİLİTLİ</button>
+                    <p id="descRps">Botu yen, +3.500 Puan kazan!</p>
+                    <button class="play-btn" id="btnPlayRps" disabled style="background:#718096; cursor:not-allowed;">KİLİTLİ OYUN</button>
                 </div>
             </div>
         </div>
@@ -145,7 +190,7 @@
             <div class="wheel-container">
                 <div class="wheel-pointer"></div>
                 <canvas id="wheelCanvas" width="320" height="320"></canvas>
-                <button class="play-btn" onclick="spinWheel()" style="max-width:200px; margin-top:20px;">ÇARKI ÇEVİR (100 PTS)</button>
+                <button class="play-btn" id="btnSpin" style="max-width:200px; margin-top:20px;">ÇARKI ÇEVİR (100 PTS)</button>
             </div>
         </div>
 
@@ -166,18 +211,44 @@
         </div>
 
         <div id="tab-rewards" class="tab-content">
-            <div class="section-title">SİTE MAĞAZASI</div>
+            <div class="section-title">SİTE MAĞAZASI & KİLİTLER</div>
             <div class="games-grid">
                 <div class="game-card">
-                    <h3>🔓 SAYI TAHMİN KİLİDİ</h3>
-                    <p>1.000 Puan karşılığında oyunu aç.</p>
-                    <button class="play-btn" onclick="unlockGame('guess', 1000)">1.000 PTS</button>
+                    <h3>🔓 SAYI TAHMİN OYUNU</h3>
+                    <p>Oyunu kalıcı olarak açar (+450 PTS Kazandırır).</p>
+                    <button class="play-btn" onclick="buyItem('Sayı Tahmin Oyunu', 500)">500 PTS İLE AÇ</button>
                 </div>
                 <div class="game-card">
-                    <h3>🔓 TAŞ-KAĞIT-MAKAS KİLİDİ</h3>
-                    <p>5.000 Puan karşılığında oyunu aç.</p>
-                    <button class="play-btn" onclick="unlockGame('rps', 5000)">5.000 PTS</button>
+                    <h3>🔓 TAŞ-KAĞIT-MAKAS OYUNU</h3>
+                    <p>Oyunu kalıcı olarak açar (+3.500 PTS Kazandırır).</p>
+                    <button class="play-btn" style="background:#00f3ff; color:#000;" onclick="buyItem('Taş-Kağıt-Makas Oyunu', 5000)">5.000 PTS İLE AÇ</button>
                 </div>
+                <div class="game-card">
+                    <h3>⚡ 10 DAKİKALIK 2X BOOST</h3>
+                    <p>10 Dakika boyunca tüm oyunlardan 2x puan kazandırır.</p>
+                    <button class="play-btn" style="background:#eab308; color:#000;" onclick="buyItem('10 Dakikalık 2x Boost', 35000)">35.000 PTS İLE AL</button>
+                </div>
+                <div class="game-card">
+                    <h3>🎨 NEON PROFiL ÇERÇEVESİ</h3>
+                    <p>Profil resminin etrafında neon efekti açar.</p>
+                    <button class="play-btn" style="background:#f59e0b; color:#000;" onclick="buyItem('Neon Profil Çerçevesi', 120000)">120.000 PTS İLE AL</button>
+                </div>
+            </div>
+
+            <div class="inventory-box">
+                <div class="section-title" style="font-size: 16px; margin-bottom: 5px;">🎒 AÇTIĞIN ÖZELLİKLER & ÖDÜLLER</div>
+                <div id="inventoryList" class="inventory-list">
+                    <div style="color: #718096; font-size: 13px;">Henüz hiç kilit açmadın.</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-trade" class="tab-content">
+            <div class="section-title">CANLI TAKAS ALANI</div>
+            <div class="trade-box">
+                <h3>Bir Oyuncuya Takas İstek Gönder</h3>
+                <input type="text" id="tradeTargetUser" placeholder="Kullanıcı Adı Yazın...">
+                <button class="play-btn" id="btnSendTradeReq" style="margin-top:10px;">TAKAS İSTEĞİ GÖNDER</button>
             </div>
         </div>
 
@@ -188,7 +259,17 @@
             </div>
             <div class="chat-input-area">
                 <input type="text" id="chatInput" placeholder="Mesajınızı yazın..." style="margin:0;">
-                <button class="play-btn" onclick="sendChatMessage()" style="width:120px;">GÖNDER</button>
+                <button class="play-btn" id="btnSendChat" style="width:120px;">GÖNDER</button>
+            </div>
+        </div>
+
+        <div id="tab-profile" class="tab-content">
+            <div class="section-title">PROFİL VE HESAP AYARLARI</div>
+            <div class="card-form">
+                <div class="profile-avatar-big">
+                    <img id="profileAvatarBig" src="https://via.placeholder.com/100">
+                    <div id="profileFrameBig" class="avatar-frame"></div>
+                </div>
             </div>
         </div>
 
@@ -197,17 +278,40 @@
             <div class="card-form">
                 <h3>Oyuncuyu Veritabanından Sil</h3>
                 <input type="text" id="admDeleteUser" placeholder="Silinecek Kullanıcı Adı">
-                <button class="play-btn" onclick="deleteUserByAdmin()" style="margin-top:10px; background:#ff003c; color:#fff;">KULLANICIYI SİL</button>
+                <button class="play-btn" id="btnAdmDeleteUser" style="margin-top:10px; background:#ff003c; color:#fff;">KULLANICIYI SİL</button>
             </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, collection, addDoc, getDocs, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            updateProfile
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            collection, 
+            addDoc,
+            deleteDoc,
+            getDocs,
+            query, 
+            where,
+            orderBy, 
+            limit, 
+            onSnapshot,
+            arrayUnion,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const ADMIN_EMAIL = "gemirx.roblox.1717@gmail.com";
+        const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=00f3ff&color=000&name=";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDI-UoEgwxs-TPKczwYLYenBK5V6ygdZ-Y",
@@ -225,7 +329,8 @@
         let isSignUp = true;
         let score = 0;
         let currentUser = null;
-        let unlocked = { guess: false, rps: false };
+        let myInventory = [];
+        let boostUntil = 0;
 
         const loadingScreen = document.getElementById('loadingScreen');
         const authContainer = document.getElementById('authContainer');
@@ -234,127 +339,46 @@
         const scoreVal = document.getElementById('scoreVal');
         const usernameInput = document.getElementById('username');
 
-        window.playClicker = async () => {
-            await updateScore(1);
-        };
+        async function isUsernameTaken(username) {
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, where("username", "==", username));
+            const querySnapshot = await getDocs(q);
+            return !querySnapshot.empty;
+        }
 
-        window.playGuessGame = async () => {
-            if (!unlocked.guess) return alert("Bu oyun kilitli! Mağazadan kilidini açmalısın.");
-            const target = Math.floor(Math.random() * 10) + 1;
-            const input = prompt("1 ile 10 arasında bir sayı tahmin edin:");
-            if (input === null) return;
+        function listenLeaderboard() {
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, orderBy("score", "desc"), limit(20));
             
-            if (parseInt(input) === target) {
-                alert(`Tebrikler! Doğru bildin 🎉 Sayı: ${target}\n+450 Puan Kazandın!`);
-                await updateScore(450);
-            } else {
-                alert(`Bilemedin! Doğru cevap: ${target}`);
-            }
-        };
+            onSnapshot(q, (snapshot) => {
+                const leaderboardBody = document.getElementById('leaderboardBody');
+                leaderboardBody.innerHTML = '';
+                
+                let rank = 1;
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const isAdminUser = data.isAdmin === true || data.email === ADMIN_EMAIL;
+                    const adminBadge = isAdminUser 
+                        ? ' <span style="background:#ff003c; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold;">⚡ ADMIN</span>' 
+                        : '';
 
-        window.playRPSGame = async () => {
-            if (!unlocked.rps) return alert("Bu oyun kilitli! Mağazadan kilidini açmalısın.");
-            const choices = ['taş', 'kağıt', 'makas'];
-            const input = prompt("Seçimini yap: Taş, Kağıt veya Makas")?.toLowerCase().trim();
-            if (!input || !choices.includes(input)) return;
-
-            const bot = choices[Math.floor(Math.random() * choices.length)];
-            let result = `Sen: ${input.toUpperCase()} | Bot: ${bot.toUpperCase()}\n\n`;
-
-            if (input === bot) {
-                alert(result + "BERABERE!");
-            } else if (
-                (input === 'taş' && bot === 'makas') ||
-                (input === 'kağıt' && bot === 'taş') ||
-                (input === 'makas' && bot === 'kağıt')
-            ) {
-                alert(result + "KAZANDIN! +3.500 Puan!");
-                await updateScore(3500);
-            } else {
-                alert(result + "KAYBETTİN!");
-            }
-        };
-
-        window.unlockGame = async (gameKey, price) => {
-            if (score < price) return alert("Yetersiz Puan!");
-            if (unlocked[gameKey]) return alert("Bu oyun zaten açık!");
-
-            score -= price;
-            unlocked[gameKey] = true;
-            await setDoc(doc(db, "users", currentUser.uid), { score, unlocked }, { merge: true });
-            alert("Oyun kilidi başarıyla açıldı!");
-        };
-
-        window.sendChatMessage = async () => {
-            const input = document.getElementById('chatInput');
-            if (!input.value.trim() || !currentUser) return;
-            await addDoc(collection(db, "chats"), {
-                username: currentUser.displayName || currentUser.email.split('@')[0],
-                message: input.value.trim(),
-                timestamp: serverTimestamp()
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>#${rank}</td>
+                        <td>${data.username || 'Gizli Oyuncu'}${adminBadge}</td>
+                        <td>⚡ ${data.score ? data.score.toLocaleString() : 0}</td>
+                    `;
+                    leaderboardBody.appendChild(row);
+                    rank++;
+                });
             });
-            input.value = '';
-        };
+        }
 
         window.switchTab = (tabName) => {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tabName).classList.add('active');
-            if(tabName === 'wheel') drawWheel();
         };
-
-        async function updateScore(amount) {
-            if (!currentUser) return;
-            score += amount;
-            scoreVal.innerText = score.toLocaleString();
-            await setDoc(doc(db, "users", currentUser.uid), { score }, { merge: true });
-        }
-
-        function updateUIUnlocks() {
-            if (unlocked.guess) {
-                document.getElementById('cardGuess').classList.remove('locked');
-                const btn = document.getElementById('btnGuess');
-                btn.classList.remove('disabled');
-                btn.innerText = "OYNA";
-            }
-            if (unlocked.rps) {
-                document.getElementById('cardRPS').classList.remove('locked');
-                const btn = document.getElementById('btnRPS');
-                btn.classList.remove('disabled');
-                btn.innerText = "OYNA";
-            }
-        }
-
-        // Çark Çizimi
-        const canvas = document.getElementById('wheelCanvas');
-        const ctx = canvas ? canvas.getContext('2d') : null;
-        const options = ["50 PTS", "100 PTS", "200 PTS", "PAS", "500 PTS", "0 PTS", "1000 PTS", "25 PTS"];
-        const colors = ["#00f3ff", "#ff003c", "#00f3ff", "#333", "#eab308", "#555", "#00ff66", "#0066ff"];
-
-        function drawWheel() {
-            if (!ctx) return;
-            const numOptions = options.length;
-            const arcSize = (2 * Math.PI) / numOptions;
-            ctx.clearRect(0, 0, 320, 320);
-
-            for (let i = 0; i < numOptions; i++) {
-                const angle = i * arcSize;
-                ctx.beginPath();
-                ctx.fillStyle = colors[i];
-                ctx.moveTo(160, 160);
-                ctx.arc(160, 160, 150, angle, angle + arcSize);
-                ctx.lineTo(160, 160);
-                ctx.fill();
-
-                ctx.save();
-                ctx.fillStyle = "#000";
-                ctx.font = "bold 14px Orbitron";
-                ctx.translate(160 + Math.cos(angle + arcSize / 2) * 100, 160 + Math.sin(angle + arcSize / 2) * 100);
-                ctx.rotate(angle + arcSize / 2 + Math.PI / 2);
-                ctx.fillText(options[i], -ctx.measureText(options[i]).width / 2, 0);
-                ctx.restore();
-            }
-        }
 
         document.getElementById('sw').onclick = () => {
             isSignUp = !isSignUp;
@@ -372,13 +396,18 @@
             
             try {
                 if(isSignUp) {
+                    if (await isUsernameTaken(username)) {
+                        msg.innerText = "Bu kullanıcı adı zaten alınmış!";
+                        return;
+                    }
                     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
                     await updateProfile(userCredential.user, { displayName: username });
                     await setDoc(doc(db, "users", userCredential.user.uid), {
                         username: username,
                         email: email,
                         score: 0,
-                        unlocked: { guess: false, rps: false },
+                        inventory: [],
+                        boostUntil: 0,
                         isAdmin: email === ADMIN_EMAIL
                     });
                 } else {
@@ -397,10 +426,7 @@
                 currentUser = user;
                 authContainer.style.display = 'none';
                 platform.style.display = 'block';
-                
-                const name = user.displayName || user.email.split('@')[0];
-                userName.innerText = name;
-                document.getElementById('navAvatarCircle').innerText = name.substring(0, 2).toUpperCase();
+                userName.innerText = user.displayName || user.email.split('@')[0];
 
                 if (user.email === ADMIN_EMAIL) {
                     document.getElementById('adminTabBtn').style.display = 'inline-block';
@@ -410,9 +436,9 @@
                     if (docSnap.exists()) {
                         const data = docSnap.data();
                         score = data.score || 0;
-                        unlocked = data.unlocked || { guess: false, rps: false };
                         scoreVal.innerText = score.toLocaleString();
-                        updateUIUnlocks();
+                        myInventory = data.inventory || [];
+                        checkUnlockedGames(myInventory);
                     }
                 });
 
@@ -424,22 +450,79 @@
             }
         });
 
-        function listenLeaderboard() {
-            const usersRef = collection(db, "users");
-            const q = query(usersRef, orderBy("score", "desc"), limit(20));
-            onSnapshot(q, (snapshot) => {
-                const leaderboardBody = document.getElementById('leaderboardBody');
-                leaderboardBody.innerHTML = '';
-                let rank = 1;
-                snapshot.forEach(docSnap => {
-                    const data = docSnap.data();
-                    const isAdminUser = data.isAdmin === true || data.email === ADMIN_EMAIL;
-                    const adminBadge = isAdminUser ? ' <span style="background:#ff003c; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold;">⚡ ADMIN</span>' : '';
-                    leaderboardBody.innerHTML += `<tr><td>#${rank}</td><td>${data.username || 'Gizli'}${adminBadge}</td><td>⚡ ${data.score ? data.score.toLocaleString() : 0}</td></tr>`;
-                    rank++;
-                });
-            });
+        async function updateScore(amount) {
+            score += amount;
+            scoreVal.innerText = score.toLocaleString();
+            await setDoc(doc(db, "users", currentUser.uid), { score: score }, { merge: true });
         }
+
+        document.getElementById('btnClicker').onclick = () => updateScore(1);
+
+        // --- 1. SAYI TAHMİN OYUNU ---
+        document.getElementById('btnPlayGuess').onclick = () => {
+            const targetNumber = Math.floor(Math.random() * 10) + 1;
+            const userGuess = prompt("1 ile 10 arasında bir sayı tahmin edin:");
+            if (userGuess === null) return;
+
+            if (parseInt(userGuess) === targetNumber) {
+                alert(`TEBRİKLER! Doğru bildin 🎉 Sayı: ${targetNumber}\n+450 Puan Kazandın!`);
+                updateScore(450);
+            } else {
+                alert(`Maalesef bilemedin! Doğru cevap: ${targetNumber} idi.`);
+            }
+        };
+
+        // --- 2. TAŞ - KAĞIT - MAKAS OYUNU ---
+        document.getElementById('btnPlayRps').onclick = () => {
+            const choices = ['taş', 'kağıt', 'makas'];
+            const userChoice = prompt("Seçimini yap: Taş, Kağıt veya Makas")?.toLowerCase().trim();
+            if (!userChoice || !choices.includes(userChoice)) return;
+
+            const botChoice = choices[Math.floor(Math.random() * choices.length)];
+            let resultText = `Sen: ${userChoice.toUpperCase()} | Bot: ${botChoice.toUpperCase()}\n\n`;
+
+            if (userChoice === botChoice) {
+                alert(resultText + "BERABERE!");
+            } else if (
+                (userChoice === 'taş' && botChoice === 'makas') ||
+                (userChoice === 'kağıt' && botChoice === 'taş') ||
+                (userChoice === 'makas' && botChoice === 'kağıt')
+            ) {
+                alert(resultText + "KAZANDIN! +3.500 Puan!");
+                updateScore(3500);
+            } else {
+                alert(resultText + "KAYBETTİN!");
+            }
+        };
+
+        function checkUnlockedGames(inv) {
+            if (inv.includes("Sayı Tahmin Oyunu")) {
+                const btn = document.getElementById('btnPlayGuess');
+                document.getElementById('cardGuessGame').classList.remove('locked-card');
+                btn.disabled = false;
+                btn.style.background = '#00f3ff';
+                btn.style.cursor = 'pointer';
+                btn.innerText = 'OYNA';
+            }
+            if (inv.includes("Taş-Kağıt-Makas Oyunu")) {
+                const btn = document.getElementById('btnPlayRps');
+                document.getElementById('cardRpsGame').classList.remove('locked-card');
+                btn.disabled = false;
+                btn.style.background = '#00f3ff';
+                btn.style.cursor = 'pointer';
+                btn.innerText = 'OYNA';
+            }
+        }
+
+        window.buyItem = async (itemName, cost) => {
+            if (score < cost) return alert("Yetersiz Puan!");
+            score -= cost;
+            await setDoc(doc(db, "users", currentUser.uid), {
+                score: score,
+                inventory: arrayUnion(itemName)
+            }, { merge: true });
+            alert(`${itemName} satın alındı!`);
+        };
 
         function listenChat() {
             const chatRef = collection(db, "chats");
@@ -449,10 +532,30 @@
                 chatBox.innerHTML = '';
                 snapshot.docs.reverse().forEach(docSnap => {
                     const data = docSnap.data();
-                    chatBox.innerHTML += `<div class="chat-msg"><b>${data.username}:</b> ${data.message}</div>`;
+                    chatBox.innerHTML += `<div class="chat-msg"><span><b>${data.username}:</b> ${data.message}</span></div>`;
                 });
             });
         }
+
+        document.getElementById('btnSendChat').onclick = async () => {
+            const input = document.getElementById('chatInput');
+            if (!input.value.trim()) return;
+            await addDoc(collection(db, "chats"), {
+                username: currentUser.displayName || currentUser.email.split('@')[0],
+                message: input.value.trim(),
+                timestamp: serverTimestamp()
+            });
+            input.value = '';
+        };
+
+        document.getElementById('btnAdmDeleteUser').onclick = async () => {
+            const targetUsername = document.getElementById('admDeleteUser').value.trim();
+            if (!targetUsername) return;
+            const q = query(collection(db, "users"), where("username", "==", targetUsername));
+            const querySnapshot = await getDocs(q);
+            querySnapshot.forEach(async (docSnap) => await deleteDoc(doc(db, "users", docSnap.id)));
+            alert(`${targetUsername} silindi!`);
+        };
     </script>
 </body>
 </html>
