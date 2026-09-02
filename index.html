@@ -34,6 +34,17 @@
         .boost-badge { background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; display: none; }
         .btn-logout { background: transparent; border: 1px solid #ff003c; color: #ff003c; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
 
+        /* AVATAR VE ÇERÇEVE TASARIMI */
+        .avatar-container { position: relative; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
+        .avatar-img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
+        .avatar-frame { position: absolute; width: 45px; height: 45px; border-radius: 50%; pointer-events: none; display: none; }
+        .avatar-frame.active { display: block; border: 2px solid #00f3ff; box-shadow: 0 0 10px #00f3ff, inset 0 0 10px #00f3ff; animation: frameGlow 1.5s infinite alternate; }
+        @keyframes frameGlow { from { box-shadow: 0 0 5px #00f3ff, inset 0 0 5px #00f3ff; } to { box-shadow: 0 0 15px #f59e0b, inset 0 0 15px #f59e0b; border-color: #f59e0b; } }
+
+        .profile-avatar-big { position: relative; width: 100px; height: 100px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; }
+        .profile-avatar-big img { width: 85px; height: 85px; border-radius: 50%; object-fit: cover; }
+        .profile-avatar-big .avatar-frame { width: 100px; height: 100px; border-width: 3px; }
+
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
@@ -55,6 +66,11 @@
         .chat-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; height: 320px; padding: 12px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
         .chat-msg { background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 8px; font-size: 13px; border-left: 3px solid #00f3ff; word-break: break-word; display: flex; justify-content: space-between; align-items: center; }
         .chat-msg b { color: #00f3ff; margin-right: 5px; }
+        .chat-user-info { display: flex; align-items: center; gap: 8px; }
+        .chat-avatar-mini { position: relative; width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center; }
+        .chat-avatar-mini img { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
+        .chat-avatar-mini .avatar-frame { width: 26px; height: 26px; border-width: 1px; }
+
         .chat-input-area { display: flex; gap: 8px; }
 
         .leaderboard-table { width: 100%; border-collapse: collapse; background: rgba(13,20,38,0.6); border-radius: 12px; overflow: hidden; border: 1px solid rgba(0,243,255,0.2); font-size: 14px; }
@@ -69,8 +85,8 @@
         .wheel-pointer { width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #ff003c; position: absolute; top: -8px; z-index: 10; }
         #wheelCanvas { border: 4px solid #00f3ff; border-radius: 50%; box-shadow: 0 0 20px rgba(0,243,255,0.4); max-width: 100%; height: auto; }
 
-        .card-form { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 18px; max-width: 500px; margin: 0 auto 15px auto; }
-        .card-form h3 { font-size: 16px; margin-bottom: 10px; }
+        .card-form { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 18px; max-width: 500px; margin: 0 auto 15px auto; text-align: center; }
+        .card-form h3 { font-size: 16px; margin-bottom: 10px; text-align: left; }
         .btn-del { background: #ff003c; color: #fff; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
 
         .trade-box { background: rgba(13,20,38,0.8); border: 2px solid #00f3ff; border-radius: 12px; padding: 20px; max-width: 600px; margin: 0 auto; text-align: center; }
@@ -133,6 +149,10 @@
                 <a class="nav-btn" id="adminTabBtn" style="display:none; color:#ff003c;" onclick="switchTab('admin')">⚡ ADMIN</a>
             </div>
             <div class="user-section">
+                <div class="avatar-container">
+                    <img id="navAvatar" src="https://via.placeholder.com/40" class="avatar-img">
+                    <div id="navFrame" class="avatar-frame"></div>
+                </div>
                 <span class="boost-badge" id="boostBadge">🔥 2X BOOST (<span id="boostTimer">00:00</span>)</span>
                 <span class="score-badge">⚡ <span id="scoreVal">0</span> PTS</span>
                 <span id="userName" style="font-weight:bold; color:#00f3ff;">...</span>
@@ -222,7 +242,7 @@
                 </div>
                 <div class="game-card">
                     <h3>🎨 NEON PROFiL ÇERÇEVESİ</h3>
-                    <p>Takas edilebilir özel envanter eşyası.</p>
+                    <p>Profil resminin etrafında neon efekti açar ve takas edilebilir.</p>
                     <button class="play-btn" style="background:#f59e0b; color:#000;" onclick="buyItem('Neon Profil Çerçevesi', 120000)">120.000 PTS İLE AL</button>
                 </div>
                 <div class="game-card">
@@ -283,11 +303,23 @@
 
         <div id="tab-profile" class="tab-content">
             <div class="section-title">PROFİL VE HESAP AYARLARI</div>
+            
+            <div class="card-form">
+                <div class="profile-avatar-big">
+                    <img id="profileAvatarBig" src="https://via.placeholder.com/100">
+                    <div id="profileFrameBig" class="avatar-frame"></div>
+                </div>
+                <h3>Profil Fotoğrafı Güncelle</h3>
+                <input type="text" id="profAvatarUrl" placeholder="Resim URL'si Yapıştırın (https://...)">
+                <button class="play-btn" id="btnUpdateAvatar" style="margin-top:10px;">RESMİ GÜNCELLE</button>
+            </div>
+
             <div class="card-form">
                 <h3>Kullanıcı Adı Değiştir</h3>
                 <input type="text" id="profNewUsername" placeholder="Yeni Kullanıcı Adı">
                 <button class="play-btn" id="btnUpdateUsername" style="margin-top:10px;">GÜNCELLE</button>
             </div>
+
             <div class="card-form">
                 <h3>Şifre Değiştir</h3>
                 <input type="password" id="profNewPass" placeholder="Yeni Şifre">
@@ -336,6 +368,7 @@
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const ADMIN_EMAIL = "gemirx.roblox.1717@gmail.com";
+        const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=00f3ff&color=000&name=";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDI-UoEgwxs-TPKczwYLYenBK5V6ygdZ-Y",
@@ -399,7 +432,8 @@
                         username: username,
                         score: 0,
                         inventory: [],
-                        boostUntil: 0
+                        boostUntil: 0,
+                        avatarUrl: DEFAULT_AVATAR + username
                     });
                 } else {
                     await signInWithEmailAndPassword(auth, email, pass);
@@ -433,16 +467,22 @@
                         myInventory = data.inventory || [];
                         boostUntil = data.boostUntil || 0;
                         
+                        const currentAvatar = data.avatarUrl || (DEFAULT_AVATAR + (data.username || "User"));
+                        document.getElementById('navAvatar').src = currentAvatar;
+                        document.getElementById('profileAvatarBig').src = currentAvatar;
+
                         renderInventory(myInventory);
                         checkUnlockedGames(myInventory);
                         populateTradeSelect(myInventory);
                         checkBoost();
+                        updateFrames(myInventory);
                     } else {
                         setDoc(doc(db, "users", user.uid), {
                             username: user.displayName || user.email.split('@')[0],
                             score: 0,
                             inventory: [],
-                            boostUntil: 0
+                            boostUntil: 0,
+                            avatarUrl: DEFAULT_AVATAR + (user.displayName || "User")
                         });
                     }
                 });
@@ -455,6 +495,20 @@
                 platform.style.display = 'none';
             }
         });
+
+        function updateFrames(inventory) {
+            const hasFrame = inventory.includes("Neon Profil Çerçevesi");
+            const navFrame = document.getElementById('navFrame');
+            const profileFrameBig = document.getElementById('profileFrameBig');
+
+            if (hasFrame) {
+                navFrame.classList.add('active');
+                profileFrameBig.classList.add('active');
+            } else {
+                navFrame.classList.remove('active');
+                profileFrameBig.classList.remove('active');
+            }
+        }
 
         function checkBoost() {
             const now = Date.now();
@@ -916,9 +970,18 @@
                         ? `<button class="btn-del" onclick="deleteMessage('${docSnap.id}')">Sil</button>` 
                         : "";
 
+                    const userAvatar = msg.avatarUrl || (DEFAULT_AVATAR + msg.username);
+                    const hasFrameClass = msg.hasFrame ? "active" : "";
+
                     chatBox.innerHTML += `
                         <div class="chat-msg">
-                            <div><b>${isVIP}${msg.username}:</b> ${msg.text}</div>
+                            <div class="chat-user-info">
+                                <div class="chat-avatar-mini">
+                                    <img src="${userAvatar}">
+                                    <div class="avatar-frame ${hasFrameClass}"></div>
+                                </div>
+                                <b>${isVIP}${msg.username}:</b> ${msg.text}
+                            </div>
                             ${deleteBtn}
                         </div>
                     `;
@@ -933,11 +996,15 @@
             if (!text) return;
 
             const isVIP = myInventory.includes("VIP Chat Rolü");
+            const hasFrame = myInventory.includes("Neon Profil Çerçevesi");
+            const avatarUrl = document.getElementById('navAvatar').src;
 
             await addDoc(collection(db, "messages"), {
                 username: currentUser.displayName || currentUser.email.split('@')[0],
                 text: text,
                 isVIP: isVIP,
+                hasFrame: hasFrame,
+                avatarUrl: avatarUrl,
                 createdAt: serverTimestamp()
             });
 
@@ -947,6 +1014,19 @@
         window.deleteMessage = async (msgId) => {
             if (confirm("Bu mesajı silmek istediğinize emin misiniz?")) {
                 await deleteDoc(doc(db, "messages", msgId));
+            }
+        };
+
+        document.getElementById('btnUpdateAvatar').onclick = async () => {
+            const newUrl = document.getElementById('profAvatarUrl').value.trim();
+            if (!newUrl) return alert("Lütfen geçerli bir resim adresi (URL) girin!");
+
+            try {
+                await setDoc(doc(db, "users", currentUser.uid), { avatarUrl: newUrl }, { merge: true });
+                alert("Profil fotoğrafınız güncellendi!");
+                document.getElementById('profAvatarUrl').value = "";
+            } catch (e) {
+                alert("Hata: " + e.message);
             }
         };
 
