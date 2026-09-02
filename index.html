@@ -3,6 +3,8 @@
 <head>
     <meta name="google-site-verification" content="xQdXS0w3a-svtFWtcYaiCCx4Hfwmp9zbcgm2ksn3VFY" />
     <meta charset="UTF-8">
+    <!-- Mobil Uyum İçin Viewport Etiketi -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Cyberpunk Game Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     <style>
@@ -15,65 +17,80 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Auth Container */
-        .auth-container { display: none; justify-content: center; align-items: center; min-height: 100vh; width: 100%; }
-        .auth-box { background: rgba(10,15,30,0.95); border: 2px solid #00f3ff; padding: 35px; border-radius: 12px; width: 340px; box-shadow: 0 0 25px rgba(0,243,255,0.4); text-align: center; }
-        .auth-box h2 { font-family: 'Orbitron', sans-serif; color: #00f3ff; margin-bottom: 15px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #00f3ff; color: #fff; border-radius: 6px; outline: none; }
+        .auth-container { display: none; justify-content: center; align-items: center; min-height: 100vh; width: 100%; padding: 15px; }
+        .auth-box { background: rgba(10,15,30,0.95); border: 2px solid #00f3ff; padding: 30px 20px; border-radius: 12px; width: 100%; max-width: 360px; box-shadow: 0 0 25px rgba(0,243,255,0.4); text-align: center; }
+        .auth-box h2 { font-family: 'Orbitron', sans-serif; color: #00f3ff; margin-bottom: 15px; font-size: 20px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #00f3ff; color: #fff; border-radius: 6px; outline: none; font-size: 14px; }
         .btn-auth { width: 100%; padding: 12px; background: #00f3ff; border: none; font-weight: bold; cursor: pointer; border-radius: 6px; color: #000; margin-top: 10px; font-family: 'Orbitron', sans-serif; }
         .toggle { margin-top: 15px; color: #8a99ad; font-size: 13px; }
         .toggle a { color: #00f3ff; cursor: pointer; text-decoration: underline; }
 
         /* Platform */
-        .platform { display: none; width: 100%; max-width: 1100px; padding: 20px; }
-        .navbar { display: flex; justify-content: space-between; align-items: center; background: rgba(13,20,38,0.8); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 15px 25px; margin-bottom: 25px; backdrop-filter: blur(10px); flex-wrap: wrap; gap: 10px; }
+        .platform { display: none; width: 100%; max-width: 1100px; padding: 15px; }
+        .navbar { display: flex; justify-content: space-between; align-items: center; background: rgba(13,20,38,0.8); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 15px 20px; margin-bottom: 20px; backdrop-filter: blur(10px); flex-wrap: wrap; gap: 15px; }
         .logo { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 900; color: #00f3ff; text-shadow: 0 0 10px rgba(0,243,255,0.5); }
-        .nav-links { display: flex; gap: 15px; flex-wrap: wrap; }
+        .nav-links { display: flex; gap: 12px; flex-wrap: wrap; }
         .nav-btn { color: #a0aec0; text-decoration: none; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 6px; }
         .nav-btn:hover, .nav-btn.active { color: #00f3ff; text-shadow: 0 0 8px #00f3ff; }
         
-        .user-section { display: flex; align-items: center; gap: 15px; }
-        .score-badge { background: rgba(0,243,255,0.1); border: 1px solid #00f3ff; padding: 6px 14px; border-radius: 20px; color: #00f3ff; font-weight: 700; font-size: 16px; }
-        .btn-logout { background: transparent; border: 1px solid #ff003c; color: #ff003c; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .user-section { display: flex; align-items: center; gap: 12px; }
+        .score-badge { background: rgba(0,243,255,0.1); border: 1px solid #00f3ff; padding: 6px 12px; border-radius: 20px; color: #00f3ff; font-weight: 700; font-size: 14px; }
+        .btn-logout { background: transparent; border: 1px solid #ff003c; color: #ff003c; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        .hero-banner { background: linear-gradient(135deg, rgba(0,243,255,0.1) 0%, rgba(255,0,60,0.1) 100%); border: 1px solid rgba(0,243,255,0.2); border-radius: 16px; padding: 40px; text-align: center; margin-bottom: 30px; }
-        .hero-banner h1 { font-family: 'Orbitron', sans-serif; font-size: 32px; color: #fff; margin-bottom: 10px; }
-        .hero-banner p { color: #a0aec0; font-size: 16px; }
+        .hero-banner { background: linear-gradient(135deg, rgba(0,243,255,0.1) 0%, rgba(255,0,60,0.1) 100%); border: 1px solid rgba(0,243,255,0.2); border-radius: 16px; padding: 25px 20px; text-align: center; margin-bottom: 20px; }
+        .hero-banner h1 { font-family: 'Orbitron', sans-serif; font-size: 22px; color: #fff; margin-bottom: 8px; }
+        .hero-banner p { color: #a0aec0; font-size: 14px; }
 
-        .section-title { font-family: 'Orbitron', sans-serif; font-size: 20px; color: #00f3ff; margin-bottom: 15px; }
-        .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .game-card { background: rgba(13,20,38,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; text-align: center; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
-        .game-card:hover { border-color: #00f3ff; transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,243,255,0.2); }
-        .game-card h3 { font-family: 'Orbitron', sans-serif; font-size: 16px; color: #fff; margin-bottom: 8px; }
+        .section-title { font-family: 'Orbitron', sans-serif; font-size: 18px; color: #00f3ff; margin-bottom: 15px; }
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .game-card { background: rgba(13,20,38,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 15px; text-align: center; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+        .game-card:hover { border-color: #00f3ff; transform: translateY(-3px); box-shadow: 0 5px 20px rgba(0,243,255,0.2); }
+        .game-card h3 { font-family: 'Orbitron', sans-serif; font-size: 15px; color: #fff; margin-bottom: 8px; }
         .game-card p { color: #718096; font-size: 13px; margin-bottom: 15px; }
-        .play-btn { background: linear-gradient(90deg, #00f3ff, #0066ff); color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; width: 100%; }
+        .play-btn { background: linear-gradient(90deg, #00f3ff, #0066ff); color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; width: 100%; font-size: 13px; }
 
         .locked-card { opacity: 0.5; border-color: #ff003c !important; }
-        .lock-badge { position: absolute; top: 10px; right: 10px; background: #ff003c; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+        .lock-badge { position: absolute; top: 10px; right: 10px; background: #ff003c; color: #fff; padding: 3px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; }
 
-        .chat-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; height: 380px; padding: 15px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
-        .chat-msg { background: rgba(0,0,0,0.4); padding: 10px 14px; border-radius: 8px; font-size: 14px; border-left: 3px solid #00f3ff; word-break: break-word; display: flex; justify-content: space-between; align-items: center; }
+        .chat-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; height: 320px; padding: 12px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .chat-msg { background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 8px; font-size: 13px; border-left: 3px solid #00f3ff; word-break: break-word; display: flex; justify-content: space-between; align-items: center; }
         .chat-msg b { color: #00f3ff; margin-right: 5px; }
-        .chat-input-area { display: flex; gap: 10px; }
+        .chat-input-area { display: flex; gap: 8px; }
 
-        .leaderboard-table { width: 100%; border-collapse: collapse; background: rgba(13,20,38,0.6); border-radius: 12px; overflow: hidden; border: 1px solid rgba(0,243,255,0.2); }
-        .leaderboard-table th, .leaderboard-table td { padding: 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
-        .leaderboard-table th { background: rgba(0,243,255,0.1); color: #00f3ff; font-family: 'Orbitron', sans-serif; }
+        .leaderboard-table { width: 100%; border-collapse: collapse; background: rgba(13,20,38,0.6); border-radius: 12px; overflow: hidden; border: 1px solid rgba(0,243,255,0.2); font-size: 14px; }
+        .leaderboard-table th, .leaderboard-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .leaderboard-table th { background: rgba(0,243,255,0.1); color: #00f3ff; font-family: 'Orbitron', sans-serif; font-size: 12px; }
 
         .inventory-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 15px; margin-top: 20px; }
         .inventory-list { list-style: none; padding: 0; }
-        .inventory-item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; margin-top: 5px; border-left: 3px solid #00f3ff; font-size: 14px; }
+        .inventory-item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; margin-top: 5px; border-left: 3px solid #00f3ff; font-size: 13px; }
 
         /* Çark Stili */
-        .wheel-container { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
-        .wheel-pointer { width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid #ff003c; position: absolute; top: -10px; z-index: 10; }
-        #wheelCanvas { border: 4px solid #00f3ff; border-radius: 50%; box-shadow: 0 0 20px rgba(0,243,255,0.4); }
+        .wheel-container { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; width: 100%; }
+        .wheel-pointer { width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #ff003c; position: absolute; top: -8px; z-index: 10; }
+        #wheelCanvas { border: 4px solid #00f3ff; border-radius: 50%; box-shadow: 0 0 20px rgba(0,243,255,0.4); max-width: 100%; height: auto; }
 
         /* Form Stilleri */
-        .card-form { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 20px; max-width: 500px; margin: 0 auto 20px auto; }
+        .card-form { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 18px; max-width: 500px; margin: 0 auto 15px auto; }
+        .card-form h3 { font-size: 16px; margin-bottom: 10px; }
         .btn-del { background: #ff003c; color: #fff; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+
+        /* MOBİL ÖZEL STİLLER (Responsive) */
+        @media (max-width: 768px) {
+            .navbar { flex-direction: column; align-items: center; text-align: center; gap: 12px; }
+            .nav-links { justify-content: center; width: 100%; gap: 10px 15px; }
+            .user-section { width: 100%; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
+            .hero-banner { padding: 20px 12px; }
+            .hero-banner h1 { font-size: 18px; }
+            .hero-banner p { font-size: 12px; }
+            .games-grid { grid-template-columns: 1fr; }
+            #wheelCanvas { width: 280px !important; height: 280px !important; }
+            .chat-input-area { flex-direction: column; }
+            .chat-input-area button { width: 100% !important; }
+        }
     </style>
 </head>
 <body>
@@ -292,7 +309,6 @@
 
         let lastClickTime = 0;
         let clickCount = 0;
-        let clickResetTimer = null;
 
         const loadingScreen = document.getElementById('loadingScreen');
         const authContainer = document.getElementById('authContainer');
@@ -393,10 +409,10 @@
             await setDoc(doc(db, "users", currentUser.uid), { score: score }, { merge: true });
         }
 
-        // Clicker Anti-Cheat ve Tıklama
+        // Clicker Tıklama
         document.getElementById('btnClicker').onclick = () => {
             const now = Date.now();
-            if (now - lastClickTime < 80) { // 80ms altı autoclicker şüphesi
+            if (now - lastClickTime < 80) {
                 clickCount++;
                 if (clickCount > 10) {
                     alert("Çok hızlı tıklıyorsun! Lütfen yavaşla.");
@@ -656,7 +672,7 @@
             }
         };
 
-        // Liderlik Tablosu (Canlı)
+        // Liderlik Tablosu
         function listenLeaderboard() {
             const q = query(collection(db, "users"), orderBy("score", "desc"), limit(10));
             onSnapshot(q, (snapshot) => {
@@ -676,7 +692,7 @@
             });
         }
 
-        // Sohbet (Canlı)
+        // Sohbet
         function listenChat() {
             const q = query(collection(db, "messages"), orderBy("createdAt", "asc"), limit(50));
             onSnapshot(q, (snapshot) => {
