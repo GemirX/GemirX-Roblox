@@ -1,40 +1,759 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-    <title>GemirX Roblox</title>
+    <meta charset="UTF-8">
+    <title>Cyberpunk Game Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; }
+        body { background: #060913; color: #fff; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+        /* Yükleniyor Ekranı Stili */
+        .loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: 'Orbitron', sans-serif; color: #00f3ff; }
+        .spinner { border: 4px solid rgba(0, 243, 255, 0.1); border-left-color: #00f3ff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Başlangıçta Auth Container Gizli */
+        .auth-container { display: none; justify-content: center; align-items: center; min-height: 100vh; width: 100%; }
+        .auth-box { background: rgba(10,15,30,0.95); border: 2px solid #00f3ff; padding: 35px; border-radius: 12px; width: 340px; box-shadow: 0 0 25px rgba(0,243,255,0.4); text-align: center; }
+        .auth-box h2 { font-family: 'Orbitron', sans-serif; color: #00f3ff; margin-bottom: 15px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #00f3ff; color: #fff; border-radius: 6px; outline: none; }
+        .btn-auth { width: 100%; padding: 12px; background: #00f3ff; border: none; font-weight: bold; cursor: pointer; border-radius: 6px; color: #000; margin-top: 10px; font-family: 'Orbitron', sans-serif; }
+        .toggle { margin-top: 15px; color: #8a99ad; font-size: 13px; }
+        .toggle a { color: #00f3ff; cursor: pointer; text-decoration: underline; }
+
+        /* Başlangıçta Platform Gizli */
+        .platform { display: none; width: 100%; max-width: 1100px; padding: 20px; }
+        
+        .navbar { display: flex; justify-content: space-between; align-items: center; background: rgba(13,20,38,0.8); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 15px 25px; margin-bottom: 25px; backdrop-filter: blur(10px); flex-wrap: wrap; gap: 10px; }
+        .logo { font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 900; color: #00f3ff; text-shadow: 0 0 10px rgba(0,243,255,0.5); }
+        .nav-links { display: flex; gap: 15px; flex-wrap: wrap; }
+        .nav-btn { color: #a0aec0; text-decoration: none; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 6px; }
+        .nav-btn:hover, .nav-btn.active { color: #00f3ff; text-shadow: 0 0 8px #00f3ff; }
+        
+        .user-section { display: flex; align-items: center; gap: 15px; }
+        .score-badge { background: rgba(0,243,255,0.1); border: 1px solid #00f3ff; padding: 6px 14px; border-radius: 20px; color: #00f3ff; font-weight: 700; font-size: 16px; }
+        .btn-logout { background: transparent; border: 1px solid #ff003c; color: #ff003c; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .hero-banner { background: linear-gradient(135deg, rgba(0,243,255,0.1) 0%, rgba(255,0,60,0.1) 100%); border: 1px solid rgba(0,243,255,0.2); border-radius: 16px; padding: 40px; text-align: center; margin-bottom: 30px; }
+        .hero-banner h1 { font-family: 'Orbitron', sans-serif; font-size: 32px; color: #fff; margin-bottom: 10px; }
+        .hero-banner p { color: #a0aec0; font-size: 16px; }
+
+        .section-title { font-family: 'Orbitron', sans-serif; font-size: 20px; color: #00f3ff; margin-bottom: 15px; }
+        .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .game-card { background: rgba(13,20,38,0.6); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; text-align: center; transition: 0.3s; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+        .game-card:hover { border-color: #00f3ff; transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,243,255,0.2); }
+        .game-card h3 { font-family: 'Orbitron', sans-serif; font-size: 16px; color: #fff; margin-bottom: 8px; }
+        .game-card p { color: #718096; font-size: 13px; margin-bottom: 15px; }
+        .play-btn { background: linear-gradient(90deg, #00f3ff, #0066ff); color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; width: 100%; }
+
+        .locked-card { opacity: 0.5; border-color: #ff003c !important; }
+        .lock-badge { position: absolute; top: 10px; right: 10px; background: #ff003c; color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; }
+
+        .chat-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; height: 380px; padding: 15px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .chat-msg { background: rgba(0,0,0,0.4); padding: 10px 14px; border-radius: 8px; font-size: 14px; border-left: 3px solid #00f3ff; word-break: break-word; display: flex; justify-content: space-between; align-items: center; }
+        .chat-msg b { color: #00f3ff; margin-right: 5px; }
+        .chat-input-area { display: flex; gap: 10px; }
+
+        .leaderboard-table { width: 100%; border-collapse: collapse; background: rgba(13,20,38,0.6); border-radius: 12px; overflow: hidden; border: 1px solid rgba(0,243,255,0.2); }
+        .leaderboard-table th, .leaderboard-table td { padding: 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .leaderboard-table th { background: rgba(0,243,255,0.1); color: #00f3ff; font-family: 'Orbitron', sans-serif; }
+
+        .inventory-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 15px; margin-top: 20px; }
+        .inventory-list { list-style: none; padding: 0; }
+        .inventory-item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; margin-top: 5px; border-left: 3px solid #00f3ff; font-size: 14px; }
+
+        /* Çark Stili */
+        .wheel-container { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; }
+        .wheel-pointer { width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid #ff003c; position: absolute; top: -10px; z-index: 10; }
+        #wheelCanvas { border: 4px solid #00f3ff; border-radius: 50%; box-shadow: 0 0 20px rgba(0,243,255,0.4); }
+
+        /* Form Stilleri (Profil & Admin) */
+        .card-form { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 20px; max-width: 500px; margin: 0 auto 20px auto; }
+        .btn-del { background: #ff003c; color: #fff; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+    </style>
 </head>
-<body style="background-image: url('logo.png'); background-size: cover; background-position: center; background-attachment: fixed; font-family: Arial, sans-serif; text-align: center; color: white; margin: 0; padding: 0;">
+<body>
 
-    <!-- Dark Overlay -->
-    <div style="background-color: rgba(0, 0, 0, 0.6); min-height: 100vh; padding-top: 40px; box-sizing: border-box;">
-
-        <!-- Main Title -->
-        <h1 style="font-size: 36px; background-color: #000000; display: inline-block; padding: 10px 20px; border-radius: 8px; border: 2px solid #00a2ff;">
-            GEMIRX ROBLOX FAVORITE GAMES
-        </h1>
-
-        <p style="font-size: 16px; margin-top: 15px; color: #ddd;">
-            Click the red button to visit Roblox.com
-        </p>
-
-        <!-- Games List -->
-        <div style="background-color: rgba(0, 0, 0, 0.8); width: 340px; margin: 25px auto; padding: 20px; border-radius: 12px; text-align: left; border: 1px solid #333;">
-            <h3 style="margin-top: 0; color: #00a2ff; text-align: center;">Most Played Games:</h3>
-            <ul style="list-style-type: square; padding-left: 20px; font-size: 18px; line-height: 2;">
-                <li>Blox Fruits</li>
-                <li>The Strongest Battleground</li>
-                <li>Evade</li>
-            </ul>
-        </div>
-
-        <!-- Button -->
-        <a href="https://www.roblox.com" target="_blank" style="text-decoration: none;">
-            <button style="background-color: #e2231a; color: white; border: none; padding: 12px 28px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer;">
-                Go to Roblox.com
-            </button>
-        </a>
-
+    <!-- Yükleniyor Ekranı -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="spinner"></div>
+        <div>YÜKLENİYOR...</div>
     </div>
 
+    <!-- Kayıt / Giriş Ekranı -->
+    <div class="auth-container" id="authContainer">
+        <div class="auth-box">
+            <h2 id="title">KAYIT OL</h2>
+            <form id="authForm">
+                <input type="text" id="username" placeholder="Kullanıcı Adı" required>
+                <input type="email" id="email" placeholder="E-Posta" required>
+                <input type="password" id="password" placeholder="Şifre" required>
+                <button type="submit" class="btn-auth" id="btn">KAYIT OL</button>
+            </form>
+            <div id="msg" style="margin-top:10px; font-size:12px;"></div>
+            <div class="toggle"><span id="txt">Zaten hesabın var mı?</span> <a id="sw">Giriş Yap</a></div>
+        </div>
+    </div>
+
+    <!-- Oyun Platformu -->
+    <div class="platform" id="platform">
+        <div class="navbar">
+            <div class="logo">CYBERHUB</div>
+            <div class="nav-links">
+                <a class="nav-btn active" onclick="switchTab('games')">🎮 OYUNLAR</a>
+                <a class="nav-btn" onclick="switchTab('wheel')">🎡 ÇARK</a>
+                <a class="nav-btn" onclick="switchTab('leaderboard')">🏆 LİDERLER</a>
+                <a class="nav-btn" onclick="switchTab('rewards')">🎁 MAĞAZA</a>
+                <a class="nav-btn" onclick="switchTab('chat')">💬 CHAT</a>
+                <a class="nav-btn" onclick="switchTab('profile')">👤 PROFİL</a>
+                <a class="nav-btn" id="adminTabBtn" style="display:none; color:#ff003c;" onclick="switchTab('admin')">⚡ ADMIN</a>
+            </div>
+            <div class="user-section">
+                <span class="score-badge">⚡ <span id="scoreVal">0</span> PTS</span>
+                <span id="userName" style="font-weight:bold; color:#00f3ff;">...</span>
+                <button class="btn-logout" id="btnLogout">ÇIKIŞ</button>
+            </div>
+        </div>
+
+        <!-- OYUNLAR TABI -->
+        <div id="tab-games" class="tab-content active">
+            <div class="hero-banner">
+                <h1>Oyun Oyna, Puanları Topla!</h1>
+                <p>Mini oyunları tamamlayarak puan kazan ve mağazadaki yeni oyunların kilidini aç!</p>
+            </div>
+            <div class="section-title">MEVCUT OYUNLAR</div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <h3>NEON CLICKER</h3>
+                    <p>Tıkladıkça anında +1 Puan kazan.</p>
+                    <button class="play-btn" id="btnClicker">+1 PUAN AL</button>
+                </div>
+                <div class="game-card">
+                    <h3>GÜNLÜK ÖDÜL</h3>
+                    <p>Butona tıkla ve +5 puan kazan!</p>
+                    <button class="play-btn" id="btnBonus" style="background:#ff003c; color:#fff;">ÖDÜLÜ AL</button>
+                </div>
+
+                <div class="game-card locked-card" id="cardGuessGame">
+                    <span class="lock-badge" id="badgeGuess">🔒 KİLİTLİ (75 PTS)</span>
+                    <h3>SAYI TAHMİN OYUNU</h3>
+                    <p id="descGuess">1 ile 5 arası sayıyı bul, +100 Puan kazan!</p>
+                    <button class="play-btn" id="btnPlayGuess" disabled style="background:#718096; cursor:not-allowed;">KİLİTLİ OYUN</button>
+                </div>
+
+                <div class="game-card locked-card" id="cardRpsGame">
+                    <span class="lock-badge" id="badgeRps">🔒 KİLİTLİ (850 PTS)</span>
+                    <h3>TAŞ-KAĞIT-MAKAS</h3>
+                    <p id="descRps">Botu yen, +1.000 Puan kazan!</p>
+                    <button class="play-btn" id="btnPlayRps" disabled style="background:#718096; cursor:not-allowed;">KİLİTLİ OYUN</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÇARK TABI -->
+        <div id="tab-wheel" class="tab-content">
+            <div class="hero-banner">
+                <h1>Şans Çarkı</h1>
+                <p>50 Puan öde, çarkı çevir ve büyük ödülleri kazan veya puanları riske at!</p>
+            </div>
+            <div class="wheel-container">
+                <div class="wheel-pointer"></div>
+                <canvas id="wheelCanvas" width="320" height="320"></canvas>
+                <button class="play-btn" id="btnSpin" style="max-width:200px; margin-top:20px;">ÇARKI ÇEVİR (50 PTS)</button>
+            </div>
+        </div>
+
+        <!-- LİDERLİK TABLOSU -->
+        <div id="tab-leaderboard" class="tab-content">
+            <div class="section-title">EN İYİ OYUNCULAR (CANLI)</div>
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>SIRA</th>
+                        <th>KULLANICI ADI</th>
+                        <th>PUAN</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                    <tr><td colspan="3">Yükleniyor...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- MAĞAZA TABI -->
+        <div id="tab-rewards" class="tab-content">
+            <div class="section-title">SİTE MAĞAZASI & KİLİTLER</div>
+            <div class="games-grid">
+                <div class="game-card">
+                    <h3>🔓 SAYI TAHMİN OYUNU</h3>
+                    <p>Oyunu kalıcı olarak açar (+100 PTS Kazandırır).</p>
+                    <button class="play-btn" onclick="buyItem('Sayı Tahmin Oyunu', 75)">75 PTS İLE AÇ</button>
+                </div>
+                <div class="game-card">
+                    <h3>🔓 TAŞ-KAĞIT-MAKAS OYUNU</h3>
+                    <p>Oyunu kalıcı olarak açar (+1.000 PTS Kazandırır).</p>
+                    <button class="play-btn" style="background:#00f3ff; color:#000;" onclick="buyItem('Taş Kağıt Makas Oyunu', 850)">850 PTS İLE AÇ</button>
+                </div>
+                <div class="game-card">
+                    <h3>👑 VIP CHAT ROLESİ</h3>
+                    <p>Chat'te isminin yanında VIP rozeti görünür.</p>
+                    <button class="play-btn" style="background:#ff003c; color:#fff;" onclick="buyItem('VIP Chat Rolü', 450000)">450.000 PTS İLE AL</button>
+                </div>
+            </div>
+
+            <div class="inventory-box">
+                <div class="section-title" style="font-size: 16px; margin-bottom: 5px;">🎒 AÇTIĞIN ÖZELLİKLER & ÖDÜLLER</div>
+                <div id="inventoryList" class="inventory-list">
+                    <div style="color: #718096; font-size: 13px;">Henüz hiç kilit açmadın.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAT TABI -->
+        <div id="tab-chat" class="tab-content">
+            <div class="section-title">TOPLULUK SOHBETİ (CANLI)</div>
+            <div class="chat-box" id="chatBox">
+                <div class="chat-msg"><b>Sistem:</b> Sohbet Odasına Hoş Geldiniz!</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Mesajınızı yazın..." style="margin:0;">
+                <button class="play-btn" id="btnSendChat" style="width:120px;">GÖNDER</button>
+            </div>
+        </div>
+
+        <!-- PROFİL TABI -->
+        <div id="tab-profile" class="tab-content">
+            <div class="section-title">PROFİL VE HESAP AYARLARI</div>
+            <div class="card-form">
+                <h3>Kullanıcı Adı Değiştir</h3>
+                <input type="text" id="profNewUsername" placeholder="Yeni Kullanıcı Adı">
+                <button class="play-btn" id="btnUpdateUsername" style="margin-top:10px;">GÜNCELLE</button>
+            </div>
+            <div class="card-form">
+                <h3>Şifre Değiştir</h3>
+                <input type="password" id="profNewPass" placeholder="Yeni Şifre">
+                <button class="play-btn" id="btnUpdatePass" style="margin-top:10px; background:#ff003c; color:#fff;">ŞİFREYİ DEĞİŞTİR</button>
+            </div>
+        </div>
+
+        <!-- ADMIN TABI -->
+        <div id="tab-admin" class="tab-content">
+            <div class="section-title" style="color:#ff003c;">⚡ YÖNETİCİ KONTROL PANELSİ</div>
+            <div class="card-form">
+                <h3>Oyuncuya Puan Ekle / Çıkar</h3>
+                <input type="text" id="admTargetUser" placeholder="Kullanıcı Adı">
+                <input type="number" id="admScoreAmount" placeholder="Miktar (Örn: 500 veya -200)">
+                <button class="play-btn" id="btnAdmUpdateScore" style="margin-top:10px;">PUANI GÜNCELLE</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            updateProfile,
+            updatePassword
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            doc, 
+            setDoc, 
+            collection, 
+            addDoc,
+            deleteDoc,
+            getDocs,
+            query, 
+            where,
+            orderBy, 
+            limit, 
+            onSnapshot,
+            arrayUnion,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // YÖNETİCİ E-POSTA ADRESİ
+        const ADMIN_EMAIL = "gemirx.roblox.1717@gmail.com";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDI-UoEgwxs-TPKczwYLYenBK5V6ygdZ-Y",
+            authDomain: "roblox-web-veya-sitem-proje.firebaseapp.com",
+            projectId: "roblox-web-veya-sitem-proje",
+            storageBucket: "roblox-web-veya-sitem-proje.firebasestorage.app",
+            messagingSenderId: "54213246428",
+            appId: "1:54213246428:web:2f77db3044af19a08f2319"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let isSignUp = true; // kayitol.html için varsayılan Kayıt Ol
+        let score = 0;
+        let currentUser = null;
+        let myInventory = [];
+
+        let lastClickTime = 0;
+        let clickCount = 0;
+        let clickResetTimer = null;
+
+        const loadingScreen = document.getElementById('loadingScreen');
+        const authContainer = document.getElementById('authContainer');
+        const platform = document.getElementById('platform');
+        const userName = document.getElementById('userName');
+        const scoreVal = document.getElementById('scoreVal');
+        const usernameInput = document.getElementById('username');
+
+        window.switchTab = (tabName) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById('tab-' + tabName).classList.add('active');
+            if(event && event.target) event.target.classList.add('active');
+            if(tabName === 'wheel') drawWheel();
+        };
+
+        document.getElementById('sw').onclick = () => {
+            isSignUp = !isSignUp;
+            document.getElementById('title').innerText = isSignUp ? "KAYIT OL" : "GİRİŞ YAP";
+            document.getElementById('btn').innerText = isSignUp ? "KAYIT OL" : "GİRİŞ YAP";
+            document.getElementById('txt').innerText = isSignUp ? "Zaten hesabın var mı?" : "Hesabın yok mu?";
+            document.getElementById('sw').innerText = isSignUp ? "Giriş Yap" : "Kayıt Ol";
+            usernameInput.style.display = isSignUp ? "block" : "none";
+            usernameInput.required = isSignUp;
+        };
+
+        document.getElementById('authForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            const username = usernameInput.value.trim();
+            const msg = document.getElementById('msg');
+            
+            try {
+                if(isSignUp) {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                    await updateProfile(userCredential.user, { displayName: username });
+                    await setDoc(doc(db, "users", userCredential.user.uid), {
+                        username: username,
+                        score: 0,
+                        inventory: []
+                    });
+                } else {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                }
+            } catch (err) {
+                msg.innerText = "Hata: " + err.message;
+                msg.style.color = "red";
+            }
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            loadingScreen.style.display = 'none';
+
+            if (user) {
+                currentUser = user;
+                authContainer.style.display = 'none';
+                platform.style.display = 'block';
+                userName.innerText = user.displayName || user.email.split('@')[0];
+
+                if (user.email === ADMIN_EMAIL) {
+                    document.getElementById('adminTabBtn').style.display = 'inline-block';
+                }
+
+                onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        score = data.score || 0;
+                        scoreVal.innerText = score.toLocaleString();
+                        myInventory = data.inventory || [];
+                        
+                        renderInventory(myInventory);
+                        checkUnlockedGames(myInventory);
+                    } else {
+                        setDoc(doc(db, "users", user.uid), {
+                            username: user.displayName || user.email.split('@')[0],
+                            score: 0,
+                            inventory: []
+                        });
+                    }
+                });
+
+                listenLeaderboard();
+                listenChat();
+            } else {
+                authContainer.style.display = 'flex';
+                platform.style.display = 'none';
+            }
+        });
+
+        // ÇARK SİSTEMİ (CANVAS)
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const segments = [
+            { label: "10 PTS", value: 10, color: "#00f3ff" },
+            { label: "0 PTS", value: 0, color: "#111827" },
+            { label: "100 PTS", value: 100, color: "#ff003c" },
+            { label: "50 PTS", value: 50, color: "#00f3ff" },
+            { label: "KAYBETTİN", value: -50, color: "#ff003c" },
+            { label: "500 PTS", value: 500, color: "#f59e0b" }
+        ];
+        let startAngle = 0;
+        let isSpinning = false;
+
+        function drawWheel() {
+            const numOptions = segments.length;
+            const arcSize = (2 * Math.PI) / numOptions;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < numOptions; i++) {
+                const angle = startAngle + i * arcSize;
+                ctx.beginPath();
+                ctx.fillStyle = segments[i].color;
+                ctx.moveTo(160, 160);
+                ctx.arc(160, 160, 150, angle, angle + arcSize);
+                ctx.lineTo(160, 160);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.save();
+                ctx.fillStyle = "#fff";
+                ctx.font = "bold 14px Orbitron";
+                ctx.translate(160 + Math.cos(angle + arcSize / 2) * 100, 160 + Math.sin(angle + arcSize / 2) * 100);
+                ctx.rotate(angle + arcSize / 2 + Math.PI / 2);
+                ctx.fillText(segments[i].label, -ctx.measureText(segments[i].label).width / 2, 0);
+                ctx.restore();
+            }
+        }
+
+        document.getElementById('btnSpin').onclick = () => {
+            if (isSpinning) return;
+            if (score < 50) {
+                alert("Çarkı çevirmek için en az 50 Puanın olmalı!");
+                return;
+            }
+
+            updateScore(-50);
+            isSpinning = true;
+
+            let spinTime = 0;
+            const spinTimeTotal = Math.random() * 3000 + 4000;
+            let spinAngleStart = Math.random() * 10 + 10;
+
+            function rotateWheel() {
+                spinTime += 30;
+                if (spinTime >= spinTimeTotal) {
+                    isSpinning = false;
+                    calculateWheelResult();
+                    return;
+                }
+                const spinAngle = spinAngleStart - (spinTime / spinTimeTotal) * spinAngleStart;
+                startAngle += (spinAngle * Math.PI) / 180;
+                drawWheel();
+                requestAnimationFrame(rotateWheel);
+            }
+            rotateWheel();
+        };
+
+        function calculateWheelResult() {
+            const degrees = (startAngle * 180 / Math.PI) % 360;
+            const arcd = 360 / segments.length;
+            const index = Math.floor((360 - degrees + 270) % 360 / arcd);
+            const prize = segments[index];
+
+            alert(`Çark durdu! Ödül: ${prize.label}`);
+            if (prize.value !== 0) updateScore(prize.value);
+        }
+
+        // PROFİL AYARLARI
+        document.getElementById('btnUpdateUsername').onclick = async () => {
+            const newName = document.getElementById('profNewUsername').value.trim();
+            if (!newName) return alert("Lütfen geçerli bir ad girin!");
+
+            try {
+                await updateProfile(currentUser, { displayName: newName });
+                await setDoc(doc(db, "users", currentUser.uid), { username: newName }, { merge: true });
+                userName.innerText = newName;
+                alert("Kullanıcı adınız güncellendi!");
+            } catch (e) {
+                alert("Hata: " + e.message);
+            }
+        };
+
+        document.getElementById('btnUpdatePass').onclick = async () => {
+            const newPass = document.getElementById('profNewPass').value.trim();
+            if (newPass.length < 6) return alert("Şifre en az 6 karakter olmalıdır!");
+
+            try {
+                await updatePassword(currentUser, newPass);
+                alert("Şifreniz başarıyla değiştirildi!");
+            } catch (e) {
+                alert("Hata: " + e.message);
+            }
+        };
+
+        // ADMIN PANELİ İŞLEMLERİ
+        document.getElementById('btnAdmUpdateScore').onclick = async () => {
+            const targetUser = document.getElementById('admTargetUser').value.trim();
+            const amount = parseInt(document.getElementById('admScoreAmount').value);
+
+            if (!targetUser || isNaN(amount)) return alert("Lütfen kullanıcı adını ve miktarı doğru girin!");
+
+            const q = query(collection(db, "users"), where("username", "==", targetUser));
+            const snap = await getDocs(q);
+
+            if (snap.empty) {
+                alert("Kullanıcı bulunamadı!");
+                return;
+            }
+
+            snap.forEach(async (docSnap) => {
+                const currentScore = docSnap.data().score || 0;
+                await setDoc(doc(db, "users", docSnap.id), { score: currentScore + amount }, { merge: true });
+                alert(`${targetUser} kullanıcısının puanına ${amount} eklendi/çıkarıldı.`);
+            });
+        };
+
+        window.deleteMessage = async (msgId) => {
+            if (confirm("Bu mesajı silmek istediğinize emin misiniz?")) {
+                await deleteDoc(doc(db, "messages", msgId));
+            }
+        };
+
+        function checkUnlockedGames(inventory) {
+            if (inventory.includes("Sayı Tahmin Oyunu")) {
+                const card = document.getElementById('cardGuessGame');
+                const badge = document.getElementById('badgeGuess');
+                const btn = document.getElementById('btnPlayGuess');
+
+                card.classList.remove('locked-card');
+                badge.style.background = "#00f3ff";
+                badge.style.color = "#000";
+                badge.innerText = "✅ AÇIK";
+                btn.disabled = false;
+                btn.style.background = "linear-gradient(90deg, #00f3ff, #0066ff)";
+                btn.style.cursor = "pointer";
+                btn.innerText = "OYNA (+100 PTS)";
+                btn.onclick = playGuessGame;
+            }
+
+            if (inventory.includes("Taş Kağıt Makas Oyunu")) {
+                const card = document.getElementById('cardRpsGame');
+                const badge = document.getElementById('badgeRps');
+                const btn = document.getElementById('btnPlayRps');
+
+                card.classList.remove('locked-card');
+                badge.style.background = "#00f3ff";
+                badge.style.color = "#000";
+                badge.innerText = "✅ AÇIK";
+                btn.disabled = false;
+                btn.style.background = "linear-gradient(90deg, #00f3ff, #0066ff)";
+                btn.style.cursor = "pointer";
+                btn.innerText = "OYNA (+1.000 PTS)";
+                btn.onclick = playRpsGame;
+            }
+        }
+
+        function playGuessGame() {
+            const guess = prompt("1 ile 5 arasında bir sayı tahmin et:");
+            if (!guess) return;
+            const secret = Math.floor(Math.random() * 5) + 1;
+            if (parseInt(guess) === secret) {
+                alert(`Tebrikler! Doğru tahmin (${secret}). +100 Puan Kazandın!`);
+                updateScore(100);
+            } else {
+                alert(`Yanlış tahmin! Doğru sayı: ${secret}. Tekrar dene!`);
+            }
+        }
+
+        function playRpsGame() {
+            const userChoice = prompt("Seçimini yaz: (taş, kağıt, makas)").toLowerCase();
+            if (!['taş', 'kağıt', 'makas'].includes(userChoice)) {
+                alert("Lütfen sadece 'taş', 'kağıt' veya 'makas' yazın!");
+                return;
+            }
+            const choices = ['taş', 'kağıt', 'makas'];
+            const botChoice = choices[Math.floor(Math.random() * 3)];
+
+            if (userChoice === botChoice) {
+                alert(`Berabere! İkiniz de "${userChoice}" seçtiniz.`);
+            } else if (
+                (userChoice === 'taş' && botChoice === 'makas') ||
+                (userChoice === 'kağıt' && botChoice === 'taş') ||
+                (userChoice === 'makas' && botChoice === 'kağıt')
+            ) {
+                alert(`Kazandın! Sen: ${userChoice} vs Bot: ${botChoice}. +1.000 Puan Kazandın!`);
+                updateScore(1000);
+            } else {
+                alert(`Kaybettin! Sen: ${userChoice} vs Bot: ${botChoice}. Tekrar dene!`);
+            }
+        }
+
+        function renderInventory(items) {
+            const invList = document.getElementById('inventoryList');
+            if (!items || items.length === 0) {
+                invList.innerHTML = '<div style="color: #718096; font-size: 13px;">Henüz hiç kilit açmadın.</div>';
+                return;
+            }
+            invList.innerHTML = "";
+            items.forEach(item => {
+                invList.innerHTML += `<div class="inventory-item">🔓 <b>${item}</b> kilidi açıldı.</div>`;
+            });
+        }
+
+        window.buyItem = async (itemName, price) => {
+            if (myInventory.includes(itemName)) {
+                alert(`Bu ürüne zaten sahipsin!`);
+                return;
+            }
+
+            if (score < price) {
+                alert(`Yetersiz Puan! "${itemName}" açmak için ${price.toLocaleString()} puana ihtiyacın var. Sende olan: ${score.toLocaleString()} PTS`);
+                return;
+            }
+
+            if (confirm(`"${itemName}" kilidini ${price.toLocaleString()} Puan karşılığında açmak istiyor musun?`)) {
+                score -= price;
+                scoreVal.innerText = score.toLocaleString();
+
+                try {
+                    await setDoc(doc(db, "users", currentUser.uid), {
+                        score: score,
+                        inventory: arrayUnion(itemName)
+                    }, { merge: true });
+
+                    alert(`Tebrikler! "${itemName}" kilidi başarıyla açıldı!`);
+                } catch (err) {
+                    alert("İşlem sırasında hata oluştu: " + err.message);
+                }
+            }
+        };
+
+        async function updateScore(addedScore) {
+            if (!currentUser) return;
+            score += addedScore;
+            scoreVal.innerText = score.toLocaleString();
+
+            try {
+                await setDoc(doc(db, "users", currentUser.uid), {
+                    username: currentUser.displayName || currentUser.email.split('@')[0],
+                    score: score
+                }, { merge: true });
+            } catch (err) {
+                console.error("Puan hatası:", err);
+            }
+        }
+
+        document.getElementById('btnClicker').onclick = () => {
+            const now = Date.now();
+
+            if (now - lastClickTime < 80) return;
+            lastClickTime = now;
+
+            clickCount++;
+            if (!clickResetTimer) {
+                clickResetTimer = setTimeout(() => {
+                    clickCount = 0;
+                    clickResetTimer = null;
+                }, 1000);
+            }
+
+            if (clickCount > 10) {
+                alert("Uyarı: Çok hızlı tıklıyorsunuz! Lütfen Auto Clicker kullanmayın.");
+                return;
+            }
+
+            updateScore(1);
+        };
+
+        document.getElementById('btnBonus').onclick = () => updateScore(5);
+
+        function listenLeaderboard() {
+            const q = query(collection(db, "users"), orderBy("score", "desc"), limit(10));
+            onSnapshot(q, (snapshot) => {
+                const tbody = document.getElementById('leaderboardBody');
+                tbody.innerHTML = "";
+                let rank = 1;
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    let medal = `#${rank}`;
+                    if (rank === 1) medal = "🥇 #1";
+                    else if (rank === 2) medal = "🥈 #2";
+                    else if (rank === 3) medal = "🥉 #3";
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${medal}</td>
+                            <td>${data.username || "Adsız Player"}</td>
+                            <td>${(data.score || 0).toLocaleString()} PTS</td>
+                        </tr>
+                    `;
+                    rank++;
+                });
+            });
+        }
+
+        const chatInput = document.getElementById('chatInput');
+        const btnSendChat = document.getElementById('btnSendChat');
+        const chatBox = document.getElementById('chatBox');
+
+        async function sendMessage() {
+            const text = chatInput.value.trim();
+            if (text === "" || !currentUser) return;
+
+            let senderName = currentUser.displayName || currentUser.email.split('@')[0];
+            if (myInventory.includes("VIP Chat Rolü")) {
+                senderName = "👑 [VIP] " + senderName;
+            }
+
+            try {
+                await addDoc(collection(db, "messages"), {
+                    sender: senderName,
+                    text: text,
+                    createdAt: serverTimestamp()
+                });
+                chatInput.value = "";
+            } catch (e) {
+                console.error("Mesaj gönderilemedi:", e);
+            }
+        }
+
+        btnSendChat.onclick = sendMessage;
+        chatInput.onkeypress = (e) => {
+            if (e.key === 'Enter') sendMessage();
+        };
+
+        function listenChat() {
+            const q = query(collection(db, "messages"), orderBy("createdAt", "asc"), limit(50));
+            onSnapshot(q, (snapshot) => {
+                chatBox.innerHTML = '<div class="chat-msg"><span><b>Sistem:</b> Sohbet Odasına Hoş Geldiniz!</span></div>';
+                snapshot.forEach((docSnap) => {
+                    const msgData = docSnap.data();
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = 'chat-msg';
+                    
+                    let delBtn = "";
+                    if (currentUser && currentUser.email === ADMIN_EMAIL) {
+                        delBtn = `<button class="btn-del" onclick="deleteMessage('${docSnap.id}')">Sil</button>`;
+                    }
+
+                    msgDiv.innerHTML = `<span><b>${msgData.sender || 'Gizli Player'}:</b> ${msgData.text}</span> ${delBtn}`;
+                    chatBox.appendChild(msgDiv);
+                });
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+        }
+
+        document.getElementById('btnLogout').onclick = () => signOut(auth);
+    </script>
 </body>
 </html>
