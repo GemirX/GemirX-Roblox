@@ -180,14 +180,14 @@
                 <div class="game-card locked-card" id="cardGuessGame">
                     <span class="lock-badge" id="badgeGuess">🔒 KİLİTLİ (500 PTS)</span>
                     <h3>SAYI TAHMİN OYUNU</h3>
-                    <p id="descGuess">1 ile 10 arası sayıyı bul, +100 Puan kazan!</p>
+                    <p id="descGuess">1 ile 10 arası sayıyı bul, +450 Puan kazan!</p>
                     <button class="play-btn" id="btnPlayGuess" disabled style="background:#718096; cursor:not-allowed;">KİLİTLİ OYUN</button>
                 </div>
 
                 <div class="game-card locked-card" id="cardRpsGame">
                     <span class="lock-badge" id="badgeRps">🔒 KİLİTLİ (5000 PTS)</span>
                     <h3>TAŞ-KAĞIT-MAKAS (ZOR)</h3>
-                    <p id="descRps">İmkansıza yakın botu yen, +1.000 Puan kazan!</p>
+                    <p id="descRps">İmkansıza yakın botu yen, +3.500 Puan kazan!</p>
                     <button class="play-btn" id="btnPlayRps" disabled style="background:#718096; cursor:not-allowed;">KİLİTLİ OYUN</button>
                 </div>
             </div>
@@ -226,12 +226,12 @@
             <div class="games-grid">
                 <div class="game-card">
                     <h3>🔓 SAYI TAHMİN OYUNU</h3>
-                    <p>Oyunu kalıcı olarak açar (+100 PTS Kazandırır).</p>
+                    <p>Oyunu kalıcı olarak açar (+450 PTS Kazandırır).</p>
                     <button class="play-btn" onclick="buyItem('Sayı Tahmin Oyunu', 500)">500 PTS İLE AÇ</button>
                 </div>
                 <div class="game-card">
                     <h3>🔓 TAŞ-KAĞIT-MAKAS OYUNU</h3>
-                    <p>Oyunu kalıcı olarak açar (+1.000 PTS Kazandırır).</p>
+                    <p>Oyunu kalıcı olarak açar (+3.500 PTS Kazandırır).</p>
                     <button class="play-btn" style="background:#00f3ff; color:#000;" onclick="buyItem('Taş-Kağıt-Makas Oyunu', 5000)">5.000 PTS İLE AÇ</button>
                 </div>
                 <div class="game-card">
@@ -889,7 +889,7 @@
             }
         }
 
-        /* 1 - 10 ARASI SAYI TAHMİN OYUNU (+100 PUAN) */
+        /* 1 - 10 ARASI SAYI TAHMİN OYUNU (+450 PUAN) */
         function playGuessGame() {
             const guess = prompt("1 ile 10 arasında bir sayı tahmin et:");
             if (!guess) return;
@@ -900,14 +900,14 @@
             }
             const secret = Math.floor(Math.random() * 10) + 1;
             if (num === secret) {
-                alert(`Tebrikler! Doğru tahmin (${secret}). +100 Puan Kazandın!`);
-                updateScore(100);
+                alert(`Tebrikler! Doğru tahmin (${secret}). +450 Puan Kazandın!`);
+                updateScore(450);
             } else {
                 alert(`Yanlış tahmin! Doğru sayı: ${secret}. Tekrar dene!`);
             }
         }
 
-        /* TAŞ-KAĞIT-MAKAS OYUNU - ZOR BOT (+1.000 PUAN) */
+        /* TAŞ-KAĞIT-MAKAS OYUNU - ZOR BOT (+3.500 PUAN) */
         function playRpsGame() {
             const userChoice = prompt("Seçimini yaz: (taş, kağıt, makas)").toLowerCase().trim();
             if (!['taş', 'kağıt', 'makas'].includes(userChoice)) {
@@ -936,8 +936,8 @@
                 (userChoice === 'kağıt' && botChoice === 'taş') ||
                 (userChoice === 'makas' && botChoice === 'kağıt')
             ) {
-                alert(`İnanılmaz! Zorlu Botu yendin! Sen: ${userChoice} vs Bot: ${botChoice}. +1.000 Puan Kazandın!`);
-                updateScore(1000);
+                alert(`İnanılmaz! Zorlu Botu yendin! Sen: ${userChoice} vs Bot: ${botChoice}. +3.500 Puan Kazandın!`);
+                updateScore(3500);
             } else {
                 alert(`Bot seni yendi! Sen: ${userChoice} vs Bot: ${botChoice}. Zor modda kazanmak kolay değil!`);
             }
