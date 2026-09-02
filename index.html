@@ -17,7 +17,7 @@
         .auth-container { display: none; justify-content: center; align-items: center; min-height: 100vh; width: 100%; padding: 15px; }
         .auth-box { background: rgba(10,15,30,0.95); border: 2px solid #00f3ff; padding: 30px 20px; border-radius: 12px; width: 100%; max-width: 360px; box-shadow: 0 0 25px rgba(0,243,255,0.4); text-align: center; }
         .auth-box h2 { font-family: 'Orbitron', sans-serif; color: #00f3ff; margin-bottom: 15px; font-size: 20px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #00f3ff; color: #fff; border-radius: 6px; outline: none; font-size: 14px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #00f3ff; color: #fff; border-radius: 6px; outline: none; font-size: 14px; }
         .btn-auth { width: 100%; padding: 12px; background: #00f3ff; border: none; font-weight: bold; cursor: pointer; border-radius: 6px; color: #000; margin-top: 10px; font-family: 'Orbitron', sans-serif; }
         .toggle { margin-top: 15px; color: #8a99ad; font-size: 13px; }
         .toggle a { color: #00f3ff; cursor: pointer; text-decoration: underline; }
@@ -72,6 +72,10 @@
         .card-form h3 { font-size: 16px; margin-bottom: 10px; }
         .btn-del { background: #ff003c; color: #fff; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
 
+        .trade-box { background: rgba(13,20,38,0.8); border: 2px solid #00f3ff; border-radius: 12px; padding: 20px; max-width: 600px; margin: 0 auto; text-align: center; }
+        .trade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
+        .trade-column { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid rgba(0,243,255,0.2); }
+
         @media (max-width: 768px) {
             body { justify-content: flex-start !important; padding: 10px 5px !important; }
             .platform { width: 100% !important; max-width: 100% !important; padding: 5px !important; }
@@ -89,6 +93,7 @@
             .chat-input-area { flex-direction: column; }
             .chat-input-area button { width: 100% !important; }
             .card-form { width: 100%; }
+            .trade-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -121,6 +126,7 @@
                 <a class="nav-btn" onclick="switchTab('wheel')">🎡 ÇARK</a>
                 <a class="nav-btn" onclick="switchTab('leaderboard')">🏆 LİDERLER</a>
                 <a class="nav-btn" onclick="switchTab('rewards')">🎁 MAĞAZA</a>
+                <a class="nav-btn" onclick="switchTab('trade')">🔄 TAKAS</a>
                 <a class="nav-btn" onclick="switchTab('chat')">💬 CHAT</a>
                 <a class="nav-btn" onclick="switchTab('profile')">👤 PROFİL</a>
                 <a class="nav-btn" id="adminTabBtn" style="display:none; color:#ff003c;" onclick="switchTab('admin')">⚡ ADMIN</a>
@@ -151,14 +157,14 @@
                 </div>
 
                 <div class="game-card locked-card" id="cardGuessGame">
-                    <span class="lock-badge" id="badgeGuess">🔒 KİLİTLİ (75 PTS)</span>
+                    <span class="lock-badge" id="badgeGuess">🔒 KİLİTLİ (500 PTS)</span>
                     <h3>SAYI TAHMİN OYUNU</h3>
                     <p id="descGuess">1 ile 5 arası sayıyı bul, +100 Puan kazan!</p>
                     <button class="play-btn" id="btnPlayGuess" disabled style="background:#718096; cursor:not-allowed;">KİLİTLİ OYUN</button>
                 </div>
 
                 <div class="game-card locked-card" id="cardRpsGame">
-                    <span class="lock-badge" id="badgeRps">🔒 KİLİTLİ (850 PTS)</span>
+                    <span class="lock-badge" id="badgeRps">🔒 KİLİTLİ (5000 PTS)</span>
                     <h3>TAŞ-KAĞIT-MAKAS</h3>
                     <p id="descRps">Botu yen, +1.000 Puan kazan!</p>
                     <button class="play-btn" id="btnPlayRps" disabled style="background:#718096; cursor:not-allowed;">KİLİTLİ OYUN</button>
@@ -169,12 +175,12 @@
         <div id="tab-wheel" class="tab-content">
             <div class="hero-banner">
                 <h1>Şans Çarkı</h1>
-                <p>50 Puan öde, çarkı çevir ve büyük ödülleri kazan veya puanları riske at!</p>
+                <p>100 Puan öde, çarkı çevir ve büyük ödülleri kazan veya puanları riske at!</p>
             </div>
             <div class="wheel-container">
                 <div class="wheel-pointer"></div>
                 <canvas id="wheelCanvas" width="320" height="320"></canvas>
-                <button class="play-btn" id="btnSpin" style="max-width:200px; margin-top:20px;">ÇARKI ÇEVİR (50 PTS)</button>
+                <button class="play-btn" id="btnSpin" style="max-width:200px; margin-top:20px;">ÇARKI ÇEVİR (100 PTS)</button>
             </div>
         </div>
 
@@ -200,12 +206,17 @@
                 <div class="game-card">
                     <h3>🔓 SAYI TAHMİN OYUNU</h3>
                     <p>Oyunu kalıcı olarak açar (+100 PTS Kazandırır).</p>
-                    <button class="play-btn" onclick="buyItem('Sayı Tahmin Oyunu', 75)">75 PTS İLE AÇ</button>
+                    <button class="play-btn" onclick="buyItem('Sayı Tahmin Oyunu', 500)">500 PTS İLE AÇ</button>
                 </div>
                 <div class="game-card">
                     <h3>🔓 TAŞ-KAĞIT-MAKAS OYUNU</h3>
                     <p>Oyunu kalıcı olarak açar (+1.000 PTS Kazandırır).</p>
-                    <button class="play-btn" style="background:#00f3ff; color:#000;" onclick="buyItem('Taş Kağıt Makas Oyunu', 850)">850 PTS İLE AÇ</button>
+                    <button class="play-btn" style="background:#00f3ff; color:#000;" onclick="buyItem('Taş Kağıt Makas Oyunu', 5000)">5.000 PTS İLE AÇ</button>
+                </div>
+                <div class="game-card">
+                    <h3>🎨 NEON PROFiL ÇERÇEVESİ</h3>
+                    <p>Takas edilebilir özel envanter eşyası.</p>
+                    <button class="play-btn" style="background:#f59e0b; color:#000;" onclick="buyItem('Neon Profil Çerçevesi', 10000)">10.000 PTS İLE AL</button>
                 </div>
                 <div class="game-card">
                     <h3>👑 VIP CHAT ROLESİ</h3>
@@ -218,6 +229,36 @@
                 <div class="section-title" style="font-size: 16px; margin-bottom: 5px;">🎒 AÇTIĞIN ÖZELLİKLER & ÖDÜLLER</div>
                 <div id="inventoryList" class="inventory-list">
                     <div style="color: #718096; font-size: 13px;">Henüz hiç kilit açmadın.</div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-trade" class="tab-content">
+            <div class="section-title">CANLI TAKAS ALANI</div>
+            <div class="trade-box">
+                <div id="tradeInitArea">
+                    <h3>Bir Oyuncuya Takas İstek Gönder</h3>
+                    <p style="color:#718096; font-size:13px; margin-bottom:10px;">Envanterindeki mağaza eşyalarını canlı takas edebilirsin.</p>
+                    <input type="text" id="tradeTargetUser" placeholder="Kullanıcı Adı Yazın...">
+                    <button class="play-btn" id="btnSendTradeReq" style="margin-top:10px;">TAKAS İSTEĞİ GÖNDER</button>
+                </div>
+
+                <div id="tradeActiveArea" style="display:none;">
+                    <h2 style="color:#00f3ff;" id="tradeStatusText">Takas Yapılıyor...</h2>
+                    <div class="trade-grid">
+                        <div class="trade-column">
+                            <h4>SENİN TEKLİFİN</h4>
+                            <select id="myTradeItemSelect">
+                                <option value="">Eşya Seç...</option>
+                            </select>
+                        </div>
+                        <div class="trade-column">
+                            <h4>RAKİBİN TEKLİFİ</h4>
+                            <div id="partnerTradeOffer" style="margin-top:15px; font-weight:bold; color:#f59e0b;">Bekleniyor...</div>
+                        </div>
+                    </div>
+                    <button class="play-btn" id="btnConfirmTrade" style="background:#00f3ff; color:#000; margin-top:10px;">TAKASI ONAYLA</button>
+                    <button class="play-btn" id="btnCancelTrade" style="background:#ff003c; color:#fff; margin-top:5px;">İPTAL ET</button>
                 </div>
             </div>
         </div>
@@ -283,6 +324,7 @@
             limit, 
             onSnapshot,
             arrayUnion,
+            arrayRemove,
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
@@ -305,9 +347,8 @@
         let score = 0;
         let currentUser = null;
         let myInventory = [];
-
-        let lastClickTime = 0;
-        let clickCount = 0;
+        let clickTimes = [];
+        let activeTradeId = null;
 
         const loadingScreen = document.getElementById('loadingScreen');
         const authContainer = document.getElementById('authContainer');
@@ -384,6 +425,7 @@
                         
                         renderInventory(myInventory);
                         checkUnlockedGames(myInventory);
+                        populateTradeSelect(myInventory);
                     } else {
                         setDoc(doc(db, "users", user.uid), {
                             username: user.displayName || user.email.split('@')[0],
@@ -395,6 +437,7 @@
 
                 listenLeaderboard();
                 listenChat();
+                listenTradeRequests();
             } else {
                 authContainer.style.display = 'flex';
                 platform.style.display = 'none';
@@ -409,16 +452,14 @@
 
         document.getElementById('btnClicker').onclick = () => {
             const now = Date.now();
-            if (now - lastClickTime < 80) {
-                clickCount++;
-                if (clickCount > 10) {
-                    alert("Çok hızlı tıklıyorsun! Lütfen yavaşla.");
-                    return;
-                }
-            } else {
-                clickCount = 0;
+            clickTimes = clickTimes.filter(time => now - time < 1000);
+            clickTimes.push(now);
+
+            if (clickTimes.length > 8) {
+                alert("Auto Clicker tespit edildi! Lütfen adil oynayın.");
+                return;
             }
-            lastClickTime = now;
+
             updateScore(1);
         };
 
@@ -434,7 +475,7 @@
             { label: "0 PTS", value: 0, color: "#111827" },
             { label: "100 PTS", value: 100, color: "#ff003c" },
             { label: "50 PTS", value: 50, color: "#00f3ff" },
-            { label: "KAYBETTİN", value: -50, color: "#ff003c" },
+            { label: "KAYBETTİN", value: -100, color: "#ff003c" },
             { label: "500 PTS", value: 500, color: "#f59e0b" }
         ];
         let startAngle = 0;
@@ -467,12 +508,12 @@
 
         document.getElementById('btnSpin').onclick = () => {
             if (isSpinning) return;
-            if (score < 50) {
-                alert("Çarkı çevirmek için en az 50 Puanın olmalı!");
+            if (score < 100) {
+                alert("Çarkı çevirmek için en az 100 Puanın olmalı!");
                 return;
             }
 
-            updateScore(-50);
+            updateScore(-100);
             isSpinning = true;
 
             let spinTime = 0;
@@ -504,56 +545,179 @@
             if (prize.value !== 0) updateScore(prize.value);
         }
 
-        document.getElementById('btnUpdateUsername').onclick = async () => {
-            const newName = document.getElementById('profNewUsername').value.trim();
-            if (!newName) return alert("Lütfen geçerli bir ad girin!");
+        document.getElementById('btnSendTradeReq').onclick = async () => {
+            const targetUser = document.getElementById('tradeTargetUser').value.trim();
+            const myName = currentUser.displayName || currentUser.email.split('@')[0];
 
-            try {
-                await updateProfile(currentUser, { displayName: newName });
-                await setDoc(doc(db, "users", currentUser.uid), { username: newName }, { merge: true });
-                userName.innerText = newName;
-                alert("Kullanıcı adınız güncellendi!");
-            } catch (e) {
-                alert("Hata: " + e.message);
+            if (!targetUser) return alert("Lütfen kullanıcı adı yazın!");
+            if (targetUser === myName) return alert("Kendine takas isteği gönderemezsin!");
+
+            await addDoc(collection(db, "trades"), {
+                sender: myName,
+                receiver: targetUser,
+                status: "pending",
+                senderOffer: "",
+                receiverOffer: "",
+                senderConfirm: false,
+                receiverConfirm: false,
+                createdAt: serverTimestamp()
+            });
+
+            alert(`${targetUser} kullanıcısına takas isteği gönderildi!`);
+        };
+
+        function listenTradeRequests() {
+            const myName = currentUser.displayName || currentUser.email.split('@')[0];
+            const q = query(collection(db, "trades"), where("receiver", "==", myName), where("status", "==", "pending"));
+
+            onSnapshot(q, (snapshot) => {
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    if (confirm(`${data.sender} seninle canlı takas yapmak istiyor! Kabul ediyor musun?`)) {
+                        setDoc(doc(db, "trades", docSnap.id), { status: "active" }, { merge: true });
+                        openTradeWindow(docSnap.id, false);
+                    } else {
+                        setDoc(doc(db, "trades", docSnap.id), { status: "rejected" }, { merge: true });
+                    }
+                });
+            });
+
+            const qSent = query(collection(db, "trades"), where("sender", "==", myName), where("status", "==", "active"));
+            onSnapshot(qSent, (snapshot) => {
+                snapshot.forEach((docSnap) => {
+                    openTradeWindow(docSnap.id, true);
+                });
+            });
+        }
+
+        function openTradeWindow(tradeId, isSender) {
+            activeTradeId = tradeId;
+            document.getElementById('tradeInitArea').style.display = 'none';
+            document.getElementById('tradeActiveArea').style.display = 'block';
+            switchTab('trade');
+
+            onSnapshot(doc(db, "trades", tradeId), async (docSnap) => {
+                if (!docSnap.exists()) return;
+                const data = docSnap.data();
+
+                if (data.status === 'cancelled') {
+                    alert("Takas iptal edildi!");
+                    resetTradeWindow();
+                    return;
+                }
+
+                const partnerOffer = isSender ? data.receiverOffer : data.senderOffer;
+                document.getElementById('partnerTradeOffer').innerText = partnerOffer || "Henüz eşya seçmedi...";
+
+                if (data.senderConfirm && data.receiverConfirm) {
+                    await executeTrade(data);
+                }
+            });
+        }
+
+        function populateTradeSelect(items) {
+            const select = document.getElementById('myTradeItemSelect');
+            select.innerHTML = '<option value="">Eşya Seç...</option>';
+            items.forEach(item => {
+                select.innerHTML += `<option value="${item}">${item}</option>`;
+            });
+        }
+
+        document.getElementById('myTradeItemSelect').onchange = async (e) => {
+            if (!activeTradeId) return;
+            const selectedItem = e.target.value;
+            const myName = currentUser.displayName || currentUser.email.split('@')[0];
+
+            const docSnap = await getDocs(query(collection(db, "trades"), where("sender", "==", myName)));
+            const isSender = !docSnap.empty;
+
+            if (isSender) {
+                await setDoc(doc(db, "trades", activeTradeId), { senderOffer: selectedItem }, { merge: true });
+            } else {
+                await setDoc(doc(db, "trades", activeTradeId), { receiverOffer: selectedItem }, { merge: true });
             }
         };
 
-        document.getElementById('btnUpdatePass').onclick = async () => {
-            const newPass = document.getElementById('profNewPass').value.trim();
-            if (newPass.length < 6) return alert("Şifre en az 6 karakter olmalıdır!");
+        document.getElementById('btnConfirmTrade').onclick = async () => {
+            if (!activeTradeId) return;
+            const myName = currentUser.displayName || currentUser.email.split('@')[0];
+            const isSender = (await getDocs(query(collection(db, "trades"), where("sender", "==", myName)))).empty === false;
 
-            try {
-                await updatePassword(currentUser, newPass);
-                alert("Şifreniz başarıyla değiştirildi!");
-            } catch (e) {
-                alert("Hata: " + e.message);
+            if (isSender) {
+                await setDoc(doc(db, "trades", activeTradeId), { senderConfirm: true }, { merge: true });
+            } else {
+                await setDoc(doc(db, "trades", activeTradeId), { receiverConfirm: true }, { merge: true });
             }
+
+            document.getElementById('tradeStatusText').innerText = "Diğer oyuncunun onayı bekleniyor...";
         };
 
-        document.getElementById('btnAdmUpdateScore').onclick = async () => {
-            const targetUser = document.getElementById('admTargetUser').value.trim();
-            const amount = parseInt(document.getElementById('admScoreAmount').value);
+        document.getElementById('btnCancelTrade').onclick = async () => {
+            if (activeTradeId) {
+                await setDoc(doc(db, "trades", activeTradeId), { status: "cancelled" }, { merge: true });
+            }
+            resetTradeWindow();
+        };
 
-            if (!targetUser || isNaN(amount)) return alert("Lütfen kullanıcı adını ve miktarı doğru girin!");
+        function resetTradeWindow() {
+            activeTradeId = null;
+            document.getElementById('tradeInitArea').style.display = 'block';
+            document.getElementById('tradeActiveArea').style.display = 'none';
+            document.getElementById('tradeStatusText').innerText = "Takas Yapılıyor...";
+        }
 
-            const q = query(collection(db, "users"), where("username", "==", targetUser));
-            const snap = await getDocs(q);
+        async function executeTrade(tradeData) {
+            const senderUserQ = query(collection(db, "users"), where("username", "==", tradeData.sender));
+            const receiverUserQ = query(collection(db, "users"), where("username", "==", tradeData.receiver));
 
-            if (snap.empty) {
-                alert("Kullanıcı bulunamadı!");
+            const senderSnap = await getDocs(senderUserQ);
+            const receiverSnap = await getDocs(receiverUserQ);
+
+            if (!senderSnap.empty && !receiverSnap.empty) {
+                const senderDoc = senderSnap.docs[0];
+                const receiverDoc = receiverSnap.docs[0];
+
+                if (tradeData.senderOffer) {
+                    await setDoc(doc(db, "users", senderDoc.id), { inventory: arrayRemove(tradeData.senderOffer) }, { merge: true });
+                    await setDoc(doc(db, "users", receiverDoc.id), { inventory: arrayUnion(tradeData.senderOffer) }, { merge: true });
+                }
+
+                if (tradeData.receiverOffer) {
+                    await setDoc(doc(db, "users", receiverDoc.id), { inventory: arrayRemove(tradeData.receiverOffer) }, { merge: true });
+                    await setDoc(doc(db, "users", senderDoc.id), { inventory: arrayUnion(tradeData.receiverOffer) }, { merge: true });
+                }
+
+                await deleteDoc(doc(db, "trades", activeTradeId));
+                alert("🎉 TAKAS BAŞARIYLA TAMAMLANDI!");
+                resetTradeWindow();
+            }
+        }
+
+        window.buyItem = async (itemName, price) => {
+            if (myInventory.includes(itemName)) {
+                alert(`Bu ürüne zaten sahipsin!`);
                 return;
             }
 
-            snap.forEach(async (docSnap) => {
-                const currentScore = docSnap.data().score || 0;
-                await setDoc(doc(db, "users", docSnap.id), { score: currentScore + amount }, { merge: true });
-                alert(`${targetUser} kullanıcısının puanına ${amount} eklendi/çıkarıldı.`);
-            });
-        };
+            if (score < price) {
+                alert(`Yetersiz Puan! "${itemName}" açmak için ${price.toLocaleString()} puana ihtiyacın var. Sende olan: ${score.toLocaleString()} PTS`);
+                return;
+            }
 
-        window.deleteMessage = async (msgId) => {
-            if (confirm("Bu mesajı silmek istediğinize emin misiniz?")) {
-                await deleteDoc(doc(db, "messages", msgId));
+            if (confirm(`"${itemName}" kilidini ${price.toLocaleString()} Puan karşılığında açmak istiyor musun?`)) {
+                score -= price;
+                scoreVal.innerText = score.toLocaleString();
+
+                try {
+                    await setDoc(doc(db, "users", currentUser.uid), {
+                        score: score,
+                        inventory: arrayUnion(itemName)
+                    }, { merge: true });
+
+                    alert(`Tebrikler! "${itemName}" kilidi başarıyla açıldı!`);
+                } catch (err) {
+                    alert("İşlem sırasında hata oluştu: " + err.message);
+                }
             }
         };
 
@@ -638,34 +802,6 @@
             });
         }
 
-        window.buyItem = async (itemName, price) => {
-            if (myInventory.includes(itemName)) {
-                alert(`Bu ürüne zaten sahipsin!`);
-                return;
-            }
-
-            if (score < price) {
-                alert(`Yetersiz Puan! "${itemName}" açmak için ${price.toLocaleString()} puana ihtiyacın var. Sende olan: ${score.toLocaleString()} PTS`);
-                return;
-            }
-
-            if (confirm(`"${itemName}" kilidini ${price.toLocaleString()} Puan karşılığında açmak istiyor musun?`)) {
-                score -= price;
-                scoreVal.innerText = score.toLocaleString();
-
-                try {
-                    await setDoc(doc(db, "users", currentUser.uid), {
-                        score: score,
-                        inventory: arrayUnion(itemName)
-                    }, { merge: true });
-
-                    alert(`Tebrikler! "${itemName}" kilidi başarıyla açıldı!`);
-                } catch (err) {
-                    alert("İşlem sırasında hata oluştu: " + err.message);
-                }
-            }
-        };
-
         function listenLeaderboard() {
             const q = query(collection(db, "users"), orderBy("score", "desc"), limit(10));
             onSnapshot(q, (snapshot) => {
@@ -723,6 +859,59 @@
             });
 
             input.value = "";
+        };
+
+        window.deleteMessage = async (msgId) => {
+            if (confirm("Bu mesajı silmek istediğinize emin misiniz?")) {
+                await deleteDoc(doc(db, "messages", msgId));
+            }
+        };
+
+        document.getElementById('btnUpdateUsername').onclick = async () => {
+            const newName = document.getElementById('profNewUsername').value.trim();
+            if (!newName) return alert("Lütfen geçerli bir ad girin!");
+
+            try {
+                await updateProfile(currentUser, { displayName: newName });
+                await setDoc(doc(db, "users", currentUser.uid), { username: newName }, { merge: true });
+                userName.innerText = newName;
+                alert("Kullanıcı adınız güncellendi!");
+            } catch (e) {
+                alert("Hata: " + e.message);
+            }
+        };
+
+        document.getElementById('btnUpdatePass').onclick = async () => {
+            const newPass = document.getElementById('profNewPass').value.trim();
+            if (newPass.length < 6) return alert("Şifre en az 6 karakter olmalıdır!");
+
+            try {
+                await updatePassword(currentUser, newPass);
+                alert("Şifreniz başarıyla değiştirildi!");
+            } catch (e) {
+                alert("Hata: " + e.message);
+            }
+        };
+
+        document.getElementById('btnAdmUpdateScore').onclick = async () => {
+            const targetUser = document.getElementById('admTargetUser').value.trim();
+            const amount = parseInt(document.getElementById('admScoreAmount').value);
+
+            if (!targetUser || isNaN(amount)) return alert("Lütfen kullanıcı adını ve miktarı doğru girin!");
+
+            const q = query(collection(db, "users"), where("username", "==", targetUser));
+            const snap = await getDocs(q);
+
+            if (snap.empty) {
+                alert("Kullanıcı bulunamadı!");
+                return;
+            }
+
+            snap.forEach(async (docSnap) => {
+                const currentScore = docSnap.data().score || 0;
+                await setDoc(doc(db, "users", docSnap.id), { score: currentScore + amount }, { merge: true });
+                alert(`${targetUser} kullanıcısının puanına ${amount} eklendi/çıkarıldı.`);
+            });
         };
     </script>
 </body>
