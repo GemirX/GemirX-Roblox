@@ -9,31 +9,39 @@
         body { background-color: #080b10; color: #fff; padding: 20px; }
         .container { max-width: 1000px; margin: 0 auto; }
         
-        /* Üst Menü */
+        /* Üst Bar */
         .navbar { display: flex; justify-content: space-between; align-items: center; background: #111827; padding: 15px 20px; border-radius: 10px; border: 1px solid #1f293d; margin-bottom: 20px; }
         .logo { font-size: 20px; font-weight: bold; color: #00f3ff; text-shadow: 0 0 8px rgba(0,243,255,0.4); }
         .user-stats { display: flex; align-items: center; gap: 15px; }
         .pts-badge { background: #00f3ff1a; color: #00f3ff; border: 1px solid #00f3ff; padding: 6px 12px; border-radius: 20px; font-weight: bold; }
-        .nav-links { display: flex; gap: 10px; margin-bottom: 20px; }
-        .nav-btn { background: #1f293d; color: #9ca3af; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        
+        /* Menü */
+        .nav-links { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+        .nav-btn { background: #1f293d; color: #9ca3af; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
         .nav-btn:hover, .nav-btn.active { background: #00f3ff; color: #000; }
         
-        /* Sekme İçerikleri */
+        /* Sekmeler */
         .tab-content { display: none; background: #111827; padding: 20px; border-radius: 10px; border: 1px solid #1f293d; }
         .tab-content.active { display: block; }
         .section-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #00f3ff; }
         
-        /* Oyun Kartları */
+        /* Kartlar ve Izgaralar */
         .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
         .game-card { background: #1a2332; border: 1px solid #2d3748; padding: 15px; border-radius: 8px; text-align: center; }
-        .game-card h3 { margin-bottom: 10px; font-size: 16px; }
-        .game-card p { font-size: 13px; color: #a0aec0; margin-bottom: 15px; }
+        .game-card h3 { margin-bottom: 8px; font-size: 15px; }
+        .game-card p { font-size: 12px; color: #a0aec0; margin-bottom: 12px; }
         
-        /* Form Elemanları ve Butonlar */
+        /* Form & Butonlar */
         input, select { width: 100%; padding: 10px; margin-bottom: 10px; background: #080b10; border: 1px solid #2d3748; color: #fff; border-radius: 5px; outline: none; }
         .play-btn { width: 100%; padding: 10px; background: #00f3ff; color: #000; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
         .play-btn:hover { opacity: 0.9; }
         .card-form { background: #1a2332; padding: 15px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #2d3748; }
+        
+        /* Tablo & Chat */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #2d3748; }
+        .chat-box { height: 200px; overflow-y: auto; background: #080b10; border: 1px solid #2d3748; padding: 10px; border-radius: 5px; margin-bottom: 10px; }
+        .chat-msg { margin-bottom: 6px; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -48,12 +56,16 @@
             </div>
         </div>
 
-        <!-- NAVIGASYON -->
+        <!-- NAVİGASYON -->
         <div class="nav-links">
-            <button class="nav-btn active" onclick="showTab('tab-games')">🎮 OYUNLAR</button>
-            <button class="nav-btn" onclick="showTab('tab-shop')">🎁 MAĞAZA</button>
-            <button class="nav-btn" onclick="showTab('tab-admin')">⚡ ADMIN</button>
-            <button class="nav-btn" onclick="showTab('tab-auth')">🔑 HESAP</button>
+            <button class="nav-btn active" onclick="showTab(event, 'tab-games')">🎮 OYUNLAR</button>
+            <button class="nav-btn" onclick="showTab(event, 'tab-leaderboard')">🏆 LİDERLER</button>
+            <button class="nav-btn" onclick="showTab(event, 'tab-shop')">🎁 MAĞAZA</button>
+            <button class="nav-btn" onclick="showTab(event, 'tab-trade')">🔄 TAKAS</button>
+            <button class="nav-btn" onclick="showTab(event, 'tab-chat')">💬 CHAT</button>
+            <button class="nav-btn" onclick="showTab(event, 'tab-profile')">👤 PROFİL</button>
+            <button class="nav-btn" onclick="showTab(event, 'tab-admin')">⚡ ADMIN</button>
+            <button class="nav-btn" onclick="showTab(event, 'tab-auth')">🔑 HESAP</button>
         </div>
 
         <!-- OYUNLAR -->
@@ -62,27 +74,76 @@
             <div class="games-grid">
                 <div class="game-card">
                     <h3>NEON CLICKER</h3>
-                    <p>Tıkladıkça puan kazan.</p>
+                    <p>Tıkladıkça anında Puan kazan.</p>
                     <button class="play-btn" id="btnClicker">+1 PUAN AL</button>
                 </div>
             </div>
         </div>
 
+        <!-- LİDER TABLOSU -->
+        <div id="tab-leaderboard" class="tab-content">
+            <div class="section-title">LİDERLİK TABLOSU</div>
+            <table>
+                <thead>
+                    <tr><th>#</th><th>Kullanıcı Adı</th><th>Puan</th></tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                    <tr><td colspan="3">Yükleniyor...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
         <!-- MAĞAZA -->
         <div id="tab-shop" class="tab-content">
-            <div class="section-title">SİTE MAĞAZASI</div>
+            <div class="section-title">MAĞAZA & KİLİTLER</div>
             <div class="games-grid">
                 <div class="game-card">
-                    <h3>SAYI TAHMİN OYUNU</h3>
-                    <p>500 PTS ile kalıcı olarak aç.</p>
+                    <h3>🔒 SAYI TAHMİN OYUNU</h3>
+                    <p>500 PTS ile kilit aç.</p>
                     <button class="play-btn">500 PTS İLE AÇ</button>
+                </div>
+                <div class="game-card">
+                    <h3>🎨 NEON ÇERÇEVE</h3>
+                    <p>120.000 PTS ile profiline ekle.</p>
+                    <button class="play-btn">120.000 PTS İLE AL</button>
                 </div>
             </div>
         </div>
 
-        <!-- ADMIN PANELİ -->
+        <!-- TAKAS -->
+        <div id="tab-trade" class="tab-content">
+            <div class="section-title">CANLI TAKAS ALANI</div>
+            <div class="card-form">
+                <input type="text" id="tradeTargetUser" placeholder="Takas Yapılacak Kullanıcı Adı">
+                <button class="play-btn">TAKAS İSTEĞİ GÖNDER</button>
+            </div>
+        </div>
+
+        <!-- SOHBET -->
+        <div id="tab-chat" class="tab-content">
+            <div class="section-title">TOPLULUK SOHBETİ</div>
+            <div class="chat-box" id="chatBox">
+                <div class="chat-msg"><b>Sistem:</b> Sohbete Hoş Geldiniz!</div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="chatInput" placeholder="Mesaj yazın..." style="margin:0;">
+                <button class="play-btn" style="width:120px;">GÖNDER</button>
+            </div>
+        </div>
+
+        <!-- PROFİL -->
+        <div id="tab-profile" class="tab-content">
+            <div class="section-title">PROFİL VE AYARLAR</div>
+            <div class="card-form">
+                <h3>Resim veya Şifre Güncelle</h3>
+                <input type="text" placeholder="Yeni Profil Resmi URL">
+                <button class="play-btn">GÜNCELLE</button>
+            </div>
+        </div>
+
+        <!-- ADMIN -->
         <div id="tab-admin" class="tab-content">
-            <div class="section-title" style="color: #ff003c;">YÖNETİCİ KONTROL PANELİ</div>
+            <div class="section-title" style="color:#ff003c;">YÖNETİCİ KONTROL PANELİ</div>
             <div class="card-form">
                 <h3>Oyuncuya Puan Ekle / Çıkar</h3>
                 <input type="text" id="admTargetUser" placeholder="Kullanıcı Adı veya E-Posta">
@@ -91,29 +152,29 @@
             </div>
         </div>
 
-        <!-- KAYIT & GİRİŞ -->
+        <!-- HESAP / AUTH -->
         <div id="tab-auth" class="tab-content">
             <div class="section-title">GİRİŞ YAP / KAYIT OL</div>
             <div class="card-form">
                 <input type="text" id="authUsername" placeholder="Kullanıcı Adı (Sadece Kayıtta)">
                 <input type="email" id="authEmail" placeholder="E-Posta Adresi">
                 <input type="password" id="authPassword" placeholder="Şifre">
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <div style="display:flex; gap:10px; margin-top:10px;">
                     <button class="play-btn" id="btnLogin">GİRİŞ YAP</button>
                     <button class="play-btn" id="btnRegister" style="background:#10b981; color:#fff;">KAYIT OL</button>
                 </div>
-                <div id="authMsg" style="margin-top: 10px; font-weight: bold;"></div>
+                <div id="authMsg" style="margin-top:10px; font-weight:bold;"></div>
             </div>
         </div>
     </div>
 
-    <!-- FIREBASE MODULE SCRIPT -->
+    <!-- FIREBASE MODULE LOGIC -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, getDocs, collection, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase Yapılandırman
+        // FIREBASE BİLGİLERİNİ BURAYA GEÇİR
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -128,16 +189,15 @@
         const db = getFirestore(app);
 
         const ADMIN_EMAIL = "gemirx.roblox.1717@gmail.com";
-        let currentUserData = null;
 
-        // Oturum Durumu Takibi
+        // OTURUM KONTROLÜ
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const userDoc = await getDoc(doc(db, "users", user.uid));
                 if (userDoc.exists()) {
-                    currentUserData = userDoc.data();
-                    document.getElementById('userPoints').innerText = currentUserData.score || 0;
-                    document.getElementById('displayUsername').innerText = currentUserData.username || user.email;
+                    const data = userDoc.data();
+                    document.getElementById('userPoints').innerText = data.score || 0;
+                    document.getElementById('displayUsername').innerText = data.username || user.email;
                 }
             } else {
                 document.getElementById('userPoints').innerText = "0";
@@ -145,7 +205,7 @@
             }
         });
 
-        // BENZERSIZ ISIM KONTROLLÜ KAYIT
+        // KAYIT (BENZERSIZ ISIM KONTROLÜ İLE)
         document.getElementById('btnRegister').onclick = async () => {
             const email = document.getElementById('authEmail').value.trim();
             const pass = document.getElementById('authPassword').value;
@@ -153,27 +213,25 @@
             const msg = document.getElementById('authMsg');
 
             if(!email || !pass || !username) {
-                msg.innerText = "Lütfen tüm alanları doldurun!";
+                msg.innerText = "Tüm alanları doldurun!";
                 msg.style.color = "red";
                 return;
             }
 
             try {
-                // 1. Kullanıcı adı benzersiz mi kontrol et
+                // İsmin önceden alınıp alınmadığını denetle
                 const q = query(collection(db, "users"), where("username", "==", username));
                 const snap = await getDocs(q);
 
                 if (!snap.empty) {
-                    msg.innerText = "Hata: Bu kullanıcı adı başkası tarafından alınmış!";
+                    msg.innerText = "Hata: Bu kullanıcı adı zaten kullanılıyor!";
                     msg.style.color = "red";
                     return;
                 }
 
-                // 2. Hesabı oluştur
                 const res = await createUserWithEmailAndPassword(auth, email, pass);
                 await updateProfile(res.user, { displayName: username });
 
-                // 3. Firestore kaydını yap
                 await setDoc(doc(db, "users", res.user.uid), {
                     username: username,
                     email: email,
@@ -189,7 +247,7 @@
             }
         };
 
-        // GİRİŞ YAPMA
+        // GİRİŞ YAP
         document.getElementById('btnLogin').onclick = async () => {
             const email = document.getElementById('authEmail').value.trim();
             const pass = document.getElementById('authPassword').value;
@@ -197,7 +255,7 @@
 
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
-                msg.innerText = "Giriş Başarılı!";
+                msg.innerText = "Giriş Yapıldı!";
                 msg.style.color = "#10b981";
             } catch (err) {
                 msg.innerText = "Hata: " + err.message;
@@ -205,32 +263,28 @@
             }
         };
 
-        // TIKLAMA OYUNU (PUAN ARTIRMA)
+        // CLICKER OYUNU
         document.getElementById('btnClicker').onclick = async () => {
-            if(!auth.currentUser) return alert("Önce giriş yapmalısınız!");
-            
+            if(!auth.currentUser) return alert("Lütfen önce giriş yapın!");
             const userRef = doc(db, "users", auth.currentUser.uid);
-            const userSnap = await getDoc(userRef);
-            
-            if(userSnap.exists()){
-                const newScore = (userSnap.data().score || 0) + 1;
+            const snap = await getDoc(userRef);
+            if(snap.exists()) {
+                const newScore = (snap.data().score || 0) + 1;
                 await setDoc(userRef, { score: newScore }, { merge: true });
                 document.getElementById('userPoints').innerText = newScore;
             }
         };
 
-        // ADMIN PANELİ PUAN GÜNCELLEME
+        // ADMIN PANELİ PUAN VERME
         document.getElementById('btnAdmUpdateScore').onclick = async () => {
             const targetInput = document.getElementById('admTargetUser').value.trim();
             const amount = parseInt(document.getElementById('admScoreAmount').value);
 
-            if (!targetInput || isNaN(amount)) return alert("Geçerli isim/e-posta ve miktar girin!");
+            if (!targetInput || isNaN(amount)) return alert("Geçerli veri girin!");
 
-            // İsme göre ara
             let q = query(collection(db, "users"), where("username", "==", targetInput));
             let snap = await getDocs(q);
 
-            // Bulunamazsa e-postaya göre ara
             if (snap.empty) {
                 q = query(collection(db, "users"), where("email", "==", targetInput));
                 snap = await getDocs(q);
@@ -244,18 +298,18 @@
             snap.forEach(async (docSnap) => {
                 const currentScore = docSnap.data().score || 0;
                 await setDoc(doc(db, "users", docSnap.id), { score: currentScore + amount }, { merge: true });
-                alert(`İşlem başarılı! Yeni Puan: ${currentScore + amount}`);
+                alert(`Puan Güncellendi! Yeni Puan: ${currentScore + amount}`);
             });
         };
     </script>
 
-    <!-- TAB GEÇİŞ SCRIPT -->
+    <!-- SEKME DEGISTIRME SCRIPT -->
     <script>
-        function showTab(tabId) {
+        function showTab(evt, tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
+            evt.currentTarget.classList.add('active');
         }
     </script>
 </body>
