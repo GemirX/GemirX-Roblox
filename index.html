@@ -31,6 +31,7 @@
         
         .user-section { display: flex; align-items: center; gap: 12px; }
         .score-badge { background: rgba(0,243,255,0.1); border: 1px solid #00f3ff; padding: 6px 12px; border-radius: 20px; color: #00f3ff; font-weight: 700; font-size: 14px; }
+        .boost-badge { background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; display: none; }
         .btn-logout { background: transparent; border: 1px solid #ff003c; color: #ff003c; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
 
         .tab-content { display: none; }
@@ -62,7 +63,7 @@
 
         .inventory-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 15px; margin-top: 20px; }
         .inventory-list { list-style: none; padding: 0; }
-        .inventory-item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; margin-top: 5px; border-left: 3px solid #00f3ff; font-size: 13px; }
+        .inventory-item { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 6px; margin-top: 5px; border-left: 3px solid #00f3ff; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
 
         .wheel-container { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; width: 100%; }
         .wheel-pointer { width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #ff003c; position: absolute; top: -8px; z-index: 10; }
@@ -132,6 +133,7 @@
                 <a class="nav-btn" id="adminTabBtn" style="display:none; color:#ff003c;" onclick="switchTab('admin')">⚡ ADMIN</a>
             </div>
             <div class="user-section">
+                <span class="boost-badge" id="boostBadge">🔥 2X BOOST (<span id="boostTimer">00:00</span>)</span>
                 <span class="score-badge">⚡ <span id="scoreVal">0</span> PTS</span>
                 <span id="userName" style="font-weight:bold; color:#00f3ff;">...</span>
                 <button class="btn-logout" id="btnLogout">ÇIKIŞ</button>
@@ -147,26 +149,26 @@
             <div class="games-grid">
                 <div class="game-card">
                     <h3>NEON CLICKER</h3>
-                    <p>Tıkladıkça anında +1 Puan kazan.</p>
+                    <p>Tıkladıkça anında Puan kazan.</p>
                     <button class="play-btn" id="btnClicker">+1 PUAN AL</button>
                 </div>
                 <div class="game-card">
                     <h3>GÜNLÜK ÖDÜL</h3>
-                    <p>Butona tıkla ve +5 puan kazan!</p>
+                    <p>Butona tıkla ve puan kazan!</p>
                     <button class="play-btn" id="btnBonus" style="background:#ff003c; color:#fff;">ÖDÜLÜ AL</button>
                 </div>
 
                 <div class="game-card locked-card" id="cardGuessGame">
                     <span class="lock-badge" id="badgeGuess">🔒 KİLİTLİ (500 PTS)</span>
                     <h3>SAYI TAHMİN OYUNU</h3>
-                    <p id="descGuess">1 ile 5 arası sayıyı bul, +100 Puan kazan!</p>
+                    <p id="descGuess">1 ile 5 arası sayıyı bul, Puan kazan!</p>
                     <button class="play-btn" id="btnPlayGuess" disabled style="background:#718096; cursor:not-allowed;">KİLİTLİ OYUN</button>
                 </div>
 
                 <div class="game-card locked-card" id="cardRpsGame">
                     <span class="lock-badge" id="badgeRps">🔒 KİLİTLİ (5000 PTS)</span>
                     <h3>TAŞ-KAĞIT-MAKAS</h3>
-                    <p id="descRps">Botu yen, +1.000 Puan kazan!</p>
+                    <p id="descRps">Botu yen, Puan kazan!</p>
                     <button class="play-btn" id="btnPlayRps" disabled style="background:#718096; cursor:not-allowed;">KİLİTLİ OYUN</button>
                 </div>
             </div>
@@ -214,9 +216,14 @@
                     <button class="play-btn" style="background:#00f3ff; color:#000;" onclick="buyItem('Taş-Kağıt-Makas Oyunu', 5000)">5.000 PTS İLE AÇ</button>
                 </div>
                 <div class="game-card">
+                    <h3>⚡ 10 DAKİKALIK 2X BOOST</h3>
+                    <p>10 Dakika boyunca tüm oyunlardan 2x puan kazandırır.</p>
+                    <button class="play-btn" style="background:#eab308; color:#000;" onclick="buyItem('10 Dakikalık 2x Boost', 35000)">35.000 PTS İLE AL</button>
+                </div>
+                <div class="game-card">
                     <h3>🎨 NEON PROFiL ÇERÇEVESİ</h3>
                     <p>Takas edilebilir özel envanter eşyası.</p>
-                    <button class="play-btn" style="background:#f59e0b; color:#000;" onclick="buyItem('Neon Profil Çerçevesi', 10000)">10.000 PTS İLE AL</button>
+                    <button class="play-btn" style="background:#f59e0b; color:#000;" onclick="buyItem('Neon Profil Çerçevesi', 120000)">120.000 PTS İLE AL</button>
                 </div>
                 <div class="game-card">
                     <h3>👑 VIP CHAT ROLESİ</h3>
@@ -347,6 +354,7 @@
         let score = 0;
         let currentUser = null;
         let myInventory = [];
+        let boostUntil = 0;
         let clickTimes = [];
         let activeTradeId = null;
 
@@ -390,7 +398,8 @@
                     await setDoc(doc(db, "users", userCredential.user.uid), {
                         username: username,
                         score: 0,
-                        inventory: []
+                        inventory: [],
+                        boostUntil: 0
                     });
                 } else {
                     await signInWithEmailAndPassword(auth, email, pass);
@@ -422,15 +431,18 @@
                         score = data.score || 0;
                         scoreVal.innerText = score.toLocaleString();
                         myInventory = data.inventory || [];
+                        boostUntil = data.boostUntil || 0;
                         
                         renderInventory(myInventory);
                         checkUnlockedGames(myInventory);
                         populateTradeSelect(myInventory);
+                        checkBoost();
                     } else {
                         setDoc(doc(db, "users", user.uid), {
                             username: user.displayName || user.email.split('@')[0],
                             score: 0,
-                            inventory: []
+                            inventory: [],
+                            boostUntil: 0
                         });
                     }
                 });
@@ -444,8 +456,30 @@
             }
         });
 
+        function checkBoost() {
+            const now = Date.now();
+            const badge = document.getElementById('boostBadge');
+            const timer = document.getElementById('boostTimer');
+
+            if (boostUntil > now) {
+                badge.style.display = 'inline-block';
+                const remainingSecs = Math.floor((boostUntil - now) / 1000);
+                const mins = Math.floor(remainingSecs / 60);
+                const secs = remainingSecs % 60;
+                timer.innerText = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        setInterval(checkBoost, 1000);
+
         async function updateScore(amount) {
-            score += amount;
+            let finalAmount = amount;
+            if (amount > 0 && Date.now() < boostUntil) {
+                finalAmount = amount * 2;
+            }
+            score += finalAmount;
             scoreVal.innerText = score.toLocaleString();
             await setDoc(doc(db, "users", currentUser.uid), { score: score }, { merge: true });
         }
@@ -513,7 +547,9 @@
                 return;
             }
 
-            updateScore(-100);
+            score -= 100;
+            scoreVal.innerText = score.toLocaleString();
+            setDoc(doc(db, "users", currentUser.uid), { score: score }, { merge: true });
             isSpinning = true;
 
             let spinTime = 0;
@@ -694,6 +730,26 @@
         }
 
         window.buyItem = async (itemName, price) => {
+            if (itemName === "10 Dakikalık 2x Boost") {
+                if (score < price) {
+                    alert(`Yetersiz Puan! "${itemName}" için ${price.toLocaleString()} puana ihtiyacın var. Sende olan: ${score.toLocaleString()} PTS`);
+                    return;
+                }
+                if (confirm(`"${itemName}" satın almak istiyor musun?`)) {
+                    score -= price;
+                    scoreVal.innerText = score.toLocaleString();
+                    const newBoostUntil = Math.max(Date.now(), boostUntil) + (10 * 60 * 1000);
+                    
+                    await setDoc(doc(db, "users", currentUser.uid), {
+                        score: score,
+                        boostUntil: newBoostUntil
+                    }, { merge: true });
+
+                    alert("🔥 10 Dakikalık 2X Boost aktif edildi!");
+                }
+                return;
+            }
+
             if (myInventory.includes(itemName) || (itemName.includes("Sayı Tahmin") && myInventory.includes("Sayı Tahmin Oyunu")) || (itemName.includes("Taş") && myInventory.includes("Taş-Kağıt-Makas Oyunu"))) {
                 alert(`Bu ürüne zaten sahipsin!`);
                 return;
@@ -723,6 +779,21 @@
             }
         };
 
+        window.useBoost = async () => {
+            if (!myInventory.includes("10 Dakikalık 2x Boost")) return;
+
+            if (confirm("10 Dakikalık 2x Boost eşyanı şimdi aktifleştirmek istiyor musun?")) {
+                const newBoostUntil = Math.max(Date.now(), boostUntil) + (10 * 60 * 1000);
+                
+                await setDoc(doc(db, "users", currentUser.uid), {
+                    inventory: arrayRemove("10 Dakikalık 2x Boost"),
+                    boostUntil: newBoostUntil
+                }, { merge: true });
+
+                alert("🔥 2X Boost Başarıyla Aktifleştirildi!");
+            }
+        };
+
         function checkUnlockedGames(inventory) {
             if (inventory.includes("Sayı Tahmin Oyunu")) {
                 const card = document.getElementById('cardGuessGame');
@@ -739,7 +810,7 @@
                     btn.disabled = false;
                     btn.style.background = "linear-gradient(90deg, #00f3ff, #0066ff)";
                     btn.style.cursor = "pointer";
-                    btn.innerText = "OYNA (+100 PTS)";
+                    btn.innerText = "OYNA";
                     btn.onclick = playGuessGame;
                 }
             }
@@ -759,7 +830,7 @@
                     btn.disabled = false;
                     btn.style.background = "linear-gradient(90deg, #00f3ff, #0066ff)";
                     btn.style.cursor = "pointer";
-                    btn.innerText = "OYNA (+1.000 PTS)";
+                    btn.innerText = "OYNA";
                     btn.onclick = playRpsGame;
                 }
             }
@@ -808,7 +879,9 @@
             }
             invList.innerHTML = "";
             items.forEach(item => {
-                invList.innerHTML += `<div class="inventory-item">🔓 <b>${item}</b> kilidi açıldı.</div>`;
+                const isBoostItem = item === "10 Dakikalık 2x Boost";
+                const useBtn = isBoostItem ? `<button class="play-btn" style="width: auto; padding: 4px 10px; font-size: 11px;" onclick="useBoost()">KULLAN</button>` : '';
+                invList.innerHTML += `<div class="inventory-item"><span>🔓 <b>${item}</b></span>${useBtn}</div>`;
             });
         }
 
