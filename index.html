@@ -36,13 +36,6 @@
 
         .avatar-container { position: relative; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
         .avatar-img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
-        .avatar-frame { position: absolute; width: 45px; height: 45px; border-radius: 50%; pointer-events: none; display: none; }
-        .avatar-frame.active { display: block; border: 2px solid #00f3ff; box-shadow: 0 0 10px #00f3ff, inset 0 0 10px #00f3ff; animation: frameGlow 1.5s infinite alternate; }
-        @keyframes frameGlow { from { box-shadow: 0 0 5px #00f3ff, inset 0 0 5px #00f3ff; } to { box-shadow: 0 0 15px #f59e0b, inset 0 0 15px #f59e0b; border-color: #f59e0b; } }
-
-        .profile-avatar-big { position: relative; width: 100px; height: 100px; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; }
-        .profile-avatar-big img { width: 85px; height: 85px; border-radius: 50%; object-fit: cover; }
-        .profile-avatar-big .avatar-frame { width: 100px; height: 100px; border-radius: 50%; border-width: 3px; }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -72,39 +65,11 @@
         .leaderboard-table th, .leaderboard-table td { padding: 12px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .leaderboard-table th { background: rgba(0,243,255,0.1); color: #00f3ff; font-family: 'Orbitron', sans-serif; font-size: 12px; }
 
-        .inventory-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 15px; margin-top: 20px; }
-        .inventory-list { list-style: none; padding: 0; }
-
-        .wheel-container { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; width: 100%; }
-        .wheel-pointer { width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 20px solid #ff003c; position: absolute; top: -8px; z-index: 10; }
+        .wheel-container { display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; width: 100%; margin-top: 10px; }
+        .wheel-pointer { width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 24px solid #ff003c; position: absolute; top: -10px; z-index: 10; }
         #wheelCanvas { border: 4px solid #00f3ff; border-radius: 50%; box-shadow: 0 0 20px rgba(0,243,255,0.4); max-width: 100%; height: auto; }
 
         .card-form { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 18px; max-width: 500px; margin: 0 auto 15px auto; text-align: center; }
-        .card-form h3 { font-size: 16px; margin-bottom: 10px; text-align: left; }
-
-        .trade-box { background: rgba(13,20,38,0.8); border: 2px solid #00f3ff; border-radius: 12px; padding: 20px; max-width: 600px; margin: 0 auto; text-align: center; }
-        .trade-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0; }
-        .trade-column { background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid rgba(0,243,255,0.2); }
-
-        @media (max-width: 768px) {
-            body { justify-content: flex-start !important; padding: 10px 5px !important; }
-            .platform { width: 100% !important; max-width: 100% !important; padding: 5px !important; }
-            .navbar { flex-direction: column; align-items: stretch; text-align: center; padding: 12px !important; gap: 10px; }
-            .nav-links { justify-content: center; gap: 8px 12px; }
-            .nav-btn { font-size: 13px; }
-            .user-section { width: 100%; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 10px; }
-            .hero-banner { padding: 15px 10px; }
-            .hero-banner h1 { font-size: 18px; }
-            .hero-banner p { font-size: 12px; }
-            .games-grid { grid-template-columns: 1fr !important; gap: 12px; }
-            .game-card { width: 100%; }
-            .wheel-container { width: 100%; overflow: hidden; }
-            #wheelCanvas { width: 80vw !important; height: 80vw !important; max-width: 300px !important; max-height: 300px !important; }
-            .chat-input-area { flex-direction: column; }
-            .chat-input-area button { width: 100% !important; }
-            .card-form { width: 100%; }
-            .trade-grid { grid-template-columns: 1fr; }
-        }
     </style>
 </head>
 <body>
@@ -136,17 +101,13 @@
                 <a class="nav-btn" onclick="switchTab('wheel')">🎡 ÇARK</a>
                 <a class="nav-btn" onclick="switchTab('leaderboard')">🏆 LİDERLER</a>
                 <a class="nav-btn" onclick="switchTab('rewards')">🎁 MAĞAZA</a>
-                <a class="nav-btn" onclick="switchTab('trade')">🔄 TAKAS</a>
                 <a class="nav-btn" onclick="switchTab('chat')">💬 CHAT</a>
-                <a class="nav-btn" onclick="switchTab('profile')">👤 PROFİL</a>
                 <a class="nav-btn" id="adminTabBtn" style="display:none; color:#ff003c;" onclick="switchTab('admin')">⚡ ADMIN</a>
             </div>
             <div class="user-section">
                 <div class="avatar-container">
-                    <img id="navAvatar" src="https://via.placeholder.com/40" class="avatar-img">
-                    <div id="navFrame" class="avatar-frame"></div>
+                    <img id="navAvatar" src="https://ui-avatars.com/api/?background=00f3ff&color=000&name=U" class="avatar-img">
                 </div>
-                <span class="boost-badge" id="boostBadge">🔥 2X BOOST (<span id="boostTimer">00:00</span>)</span>
                 <span class="score-badge">⚡ <span id="scoreVal">0</span> PTS</span>
                 <span id="userName" style="font-weight:bold; color:#00f3ff;">...</span>
                 <button class="btn-logout" id="btnLogout">ÇIKIŞ</button>
@@ -216,39 +177,13 @@
                 <div class="game-card">
                     <h3>🔓 SAYI TAHMİN OYUNU</h3>
                     <p>Oyunu kalıcı olarak açar (+450 PTS Kazandırır).</p>
-                    <button class="play-btn" onclick="buyItem('Sayı Tahmin Oyunu', 500)">500 PTS İLE AÇ</button>
+                    <button class="play-btn" id="btnBuyGuess">500 PTS İLE AÇ</button>
                 </div>
                 <div class="game-card">
                     <h3>🔓 TAŞ-KAĞIT-MAKAS OYUNU</h3>
                     <p>Oyunu kalıcı olarak açar (+3.500 PTS Kazandırır).</p>
-                    <button class="play-btn" style="background:#00f3ff; color:#000;" onclick="buyItem('Taş-Kağıt-Makas Oyunu', 5000)">5.000 PTS İLE AÇ</button>
+                    <button class="play-btn" id="btnBuyRps" style="background:#00f3ff; color:#000;">5.000 PTS İLE AÇ</button>
                 </div>
-                <div class="game-card">
-                    <h3>⚡ 10 DAKİKALIK 2X BOOST</h3>
-                    <p>10 Dakika boyunca tüm oyunlardan 2x puan kazandırır.</p>
-                    <button class="play-btn" style="background:#eab308; color:#000;" onclick="buyItem('10 Dakikalık 2x Boost', 35000)">35.000 PTS İLE AL</button>
-                </div>
-                <div class="game-card">
-                    <h3>🎨 NEON PROFiL ÇERÇEVESİ</h3>
-                    <p>Profil resminin etrafında neon efekti açar.</p>
-                    <button class="play-btn" style="background:#f59e0b; color:#000;" onclick="buyItem('Neon Profil Çerçevesi', 120000)">120.000 PTS İLE AL</button>
-                </div>
-            </div>
-
-            <div class="inventory-box">
-                <div class="section-title" style="font-size: 16px; margin-bottom: 5px;">🎒 AÇTIĞIN ÖZELLİKLER & ÖDÜLLER</div>
-                <div id="inventoryList" class="inventory-list">
-                    <div style="color: #718096; font-size: 13px;">Henüz hiç kilit açmadın.</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="tab-trade" class="tab-content">
-            <div class="section-title">CANLI TAKAS ALANI</div>
-            <div class="trade-box">
-                <h3>Bir Oyuncuya Takas İstek Gönder</h3>
-                <input type="text" id="tradeTargetUser" placeholder="Kullanıcı Adı Yazın...">
-                <button class="play-btn" id="btnSendTradeReq" style="margin-top:10px;">TAKAS İSTEĞİ GÖNDER</button>
             </div>
         </div>
 
@@ -260,16 +195,6 @@
             <div class="chat-input-area">
                 <input type="text" id="chatInput" placeholder="Mesajınızı yazın..." style="margin:0;">
                 <button class="play-btn" id="btnSendChat" style="width:120px;">GÖNDER</button>
-            </div>
-        </div>
-
-        <div id="tab-profile" class="tab-content">
-            <div class="section-title">PROFİL VE HESAP AYARLARI</div>
-            <div class="card-form">
-                <div class="profile-avatar-big">
-                    <img id="profileAvatarBig" src="https://via.placeholder.com/100">
-                    <div id="profileFrameBig" class="avatar-frame"></div>
-                </div>
             </div>
         </div>
 
@@ -285,33 +210,10 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { 
-            getAuth, 
-            createUserWithEmailAndPassword, 
-            signInWithEmailAndPassword, 
-            signOut, 
-            onAuthStateChanged,
-            updateProfile
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { 
-            getFirestore, 
-            doc, 
-            setDoc, 
-            collection, 
-            addDoc,
-            deleteDoc,
-            getDocs,
-            query, 
-            where,
-            orderBy, 
-            limit, 
-            onSnapshot,
-            arrayUnion,
-            serverTimestamp 
-        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, collection, addDoc, deleteDoc, getDocs, query, where, orderBy, limit, onSnapshot, arrayUnion, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const ADMIN_EMAIL = "gemirx.roblox.1717@gmail.com";
-        const DEFAULT_AVATAR = "https://ui-avatars.com/api/?background=00f3ff&color=000&name=";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDI-UoEgwxs-TPKczwYLYenBK5V6ygdZ-Y",
@@ -330,7 +232,6 @@
         let score = 0;
         let currentUser = null;
         let myInventory = [];
-        let boostUntil = 0;
 
         const loadingScreen = document.getElementById('loadingScreen');
         const authContainer = document.getElementById('authContainer');
@@ -339,45 +240,43 @@
         const scoreVal = document.getElementById('scoreVal');
         const usernameInput = document.getElementById('username');
 
-        async function isUsernameTaken(username) {
-            const usersRef = collection(db, "users");
-            const q = query(usersRef, where("username", "==", username));
-            const querySnapshot = await getDocs(q);
-            return !querySnapshot.empty;
-        }
+        // Çark Çizim Mantığı
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas ? canvas.getContext('2d') : null;
+        const options = ["50 PTS", "100 PTS", "200 PTS", "PAS", "500 PTS", "0 PTS", "1000 PTS", "25 PTS"];
+        const colors = ["#00f3ff", "#ff003c", "#00f3ff", "#333", "#eab308", "#555", "#00ff66", "#0066ff"];
+        let startAngle = 0;
 
-        function listenLeaderboard() {
-            const usersRef = collection(db, "users");
-            const q = query(usersRef, orderBy("score", "desc"), limit(20));
-            
-            onSnapshot(q, (snapshot) => {
-                const leaderboardBody = document.getElementById('leaderboardBody');
-                leaderboardBody.innerHTML = '';
-                
-                let rank = 1;
-                snapshot.forEach(docSnap => {
-                    const data = docSnap.data();
-                    const isAdminUser = data.isAdmin === true || data.email === ADMIN_EMAIL;
-                    const adminBadge = isAdminUser 
-                        ? ' <span style="background:#ff003c; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold;">⚡ ADMIN</span>' 
-                        : '';
+        function drawWheel() {
+            if (!ctx) return;
+            const numOptions = options.length;
+            const arcSize = (2 * Math.PI) / numOptions;
+            ctx.clearRect(0, 0, 320, 320);
 
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>#${rank}</td>
-                        <td>${data.username || 'Gizli Oyuncu'}${adminBadge}</td>
-                        <td>⚡ ${data.score ? data.score.toLocaleString() : 0}</td>
-                    `;
-                    leaderboardBody.appendChild(row);
-                    rank++;
-                });
-            });
+            for (let i = 0; i < numOptions; i++) {
+                const angle = startAngle + i * arcSize;
+                ctx.beginPath();
+                ctx.fillStyle = colors[i];
+                ctx.moveTo(160, 160);
+                ctx.arc(160, 160, 150, angle, angle + arcSize);
+                ctx.lineTo(160, 160);
+                ctx.fill();
+
+                ctx.save();
+                ctx.fillStyle = "#000";
+                ctx.font = "bold 14px Orbitron";
+                ctx.translate(160 + Math.cos(angle + arcSize / 2) * 100, 160 + Math.sin(angle + arcSize / 2) * 100);
+                ctx.rotate(angle + arcSize / 2 + Math.PI / 2);
+                ctx.fillText(options[i], -ctx.measureText(options[i]).width / 2, 0);
+                ctx.restore();
+            }
         }
 
         window.switchTab = (tabName) => {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tabName).classList.add('active');
+            if(tabName === 'wheel') drawWheel();
         };
 
         document.getElementById('sw').onclick = () => {
@@ -396,10 +295,6 @@
             
             try {
                 if(isSignUp) {
-                    if (await isUsernameTaken(username)) {
-                        msg.innerText = "Bu kullanıcı adı zaten alınmış!";
-                        return;
-                    }
                     const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
                     await updateProfile(userCredential.user, { displayName: username });
                     await setDoc(doc(db, "users", userCredential.user.uid), {
@@ -407,7 +302,6 @@
                         email: email,
                         score: 0,
                         inventory: [],
-                        boostUntil: 0,
                         isAdmin: email === ADMIN_EMAIL
                     });
                 } else {
@@ -444,6 +338,7 @@
 
                 listenLeaderboard();
                 listenChat();
+                drawWheel();
             } else {
                 authContainer.style.display = 'flex';
                 platform.style.display = 'none';
@@ -458,7 +353,7 @@
 
         document.getElementById('btnClicker').onclick = () => updateScore(1);
 
-        // --- 1. SAYI TAHMİN OYUNU ---
+        // --- SAYI TAHMİN OYUNU MANTIĞI ---
         document.getElementById('btnPlayGuess').onclick = () => {
             const targetNumber = Math.floor(Math.random() * 10) + 1;
             const userGuess = prompt("1 ile 10 arasında bir sayı tahmin edin:");
@@ -472,7 +367,7 @@
             }
         };
 
-        // --- 2. TAŞ - KAĞIT - MAKAS OYUNU ---
+        // --- TAŞ - KAĞIT - MAKAS OYUNU MANTIĞI ---
         document.getElementById('btnPlayRps').onclick = () => {
             const choices = ['taş', 'kağıt', 'makas'];
             const userChoice = prompt("Seçimini yap: Taş, Kağıt veya Makas")?.toLowerCase().trim();
@@ -499,6 +394,7 @@
             if (inv.includes("Sayı Tahmin Oyunu")) {
                 const btn = document.getElementById('btnPlayGuess');
                 document.getElementById('cardGuessGame').classList.remove('locked-card');
+                document.getElementById('badgeGuess').style.display = 'none';
                 btn.disabled = false;
                 btn.style.background = '#00f3ff';
                 btn.style.cursor = 'pointer';
@@ -507,6 +403,7 @@
             if (inv.includes("Taş-Kağıt-Makas Oyunu")) {
                 const btn = document.getElementById('btnPlayRps');
                 document.getElementById('cardRpsGame').classList.remove('locked-card');
+                document.getElementById('badgeRps').style.display = 'none';
                 btn.disabled = false;
                 btn.style.background = '#00f3ff';
                 btn.style.cursor = 'pointer';
@@ -514,15 +411,35 @@
             }
         }
 
-        window.buyItem = async (itemName, cost) => {
+        async function buyItem(itemName, cost) {
             if (score < cost) return alert("Yetersiz Puan!");
             score -= cost;
             await setDoc(doc(db, "users", currentUser.uid), {
                 score: score,
                 inventory: arrayUnion(itemName)
             }, { merge: true });
-            alert(`${itemName} satın alındı!`);
-        };
+            alert(`${itemName} başarıyla satın alındı! Oyunlar sekmesinden oynayabilirsin.`);
+        }
+
+        document.getElementById('btnBuyGuess').onclick = () => buyItem('Sayı Tahmin Oyunu', 500);
+        document.getElementById('btnBuyRps').onclick = () => buyItem('Taş-Kağıt-Makas Oyunu', 5000);
+
+        function listenLeaderboard() {
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, orderBy("score", "desc"), limit(20));
+            onSnapshot(q, (snapshot) => {
+                const leaderboardBody = document.getElementById('leaderboardBody');
+                leaderboardBody.innerHTML = '';
+                let rank = 1;
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const isAdminUser = data.isAdmin === true || data.email === ADMIN_EMAIL;
+                    const adminBadge = isAdminUser ? ' <span style="background:#ff003c; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold;">⚡ ADMIN</span>' : '';
+                    leaderboardBody.innerHTML += `<tr><td>#${rank}</td><td>${data.username || 'Gizli'}${adminBadge}</td><td>⚡ ${data.score ? data.score.toLocaleString() : 0}</td></tr>`;
+                    rank++;
+                });
+            });
+        }
 
         function listenChat() {
             const chatRef = collection(db, "chats");
@@ -546,15 +463,6 @@
                 timestamp: serverTimestamp()
             });
             input.value = '';
-        };
-
-        document.getElementById('btnAdmDeleteUser').onclick = async () => {
-            const targetUsername = document.getElementById('admDeleteUser').value.trim();
-            if (!targetUsername) return;
-            const q = query(collection(db, "users"), where("username", "==", targetUsername));
-            const querySnapshot = await getDocs(q);
-            querySnapshot.forEach(async (docSnap) => await deleteDoc(doc(db, "users", docSnap.id)));
-            alert(`${targetUsername} silindi!`);
         };
     </script>
 </body>
