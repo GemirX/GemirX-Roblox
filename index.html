@@ -34,7 +34,6 @@
         .boost-badge { background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; padding: 6px 12px; border-radius: 20px; font-weight: 700; font-size: 12px; display: none; }
         .btn-logout { background: transparent; border: 1px solid #ff003c; color: #ff003c; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
 
-        /* YUVARLAK AVATAR VE YUVARLAK ÇERÇEVE TASARIMI */
         .avatar-container { position: relative; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center; }
         .avatar-img { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; }
         .avatar-frame { position: absolute; width: 45px; height: 45px; border-radius: 50%; pointer-events: none; display: none; }
@@ -181,14 +180,14 @@
                 <div class="game-card locked-card" id="cardGuessGame">
                     <span class="lock-badge" id="badgeGuess">🔒 KİLİTLİ (500 PTS)</span>
                     <h3>SAYI TAHMİN OYUNU</h3>
-                    <p id="descGuess">1 ile 5 arası sayıyı bul, Puan kazan!</p>
+                    <p id="descGuess">1 ile 10 arası sayıyı bul, Puan kazan!</p>
                     <button class="play-btn" id="btnPlayGuess" disabled style="background:#718096; cursor:not-allowed;">KİLİTLİ OYUN</button>
                 </div>
 
                 <div class="game-card locked-card" id="cardRpsGame">
                     <span class="lock-badge" id="badgeRps">🔒 KİLİTLİ (5000 PTS)</span>
-                    <h3>TAŞ-KAĞIT-MAKAS</h3>
-                    <p id="descRps">Botu yen, Puan kazan!</p>
+                    <h3>TAŞ-KAĞIT-MAKAS (ZOR)</h3>
+                    <p id="descRps">İmkansıza yakın botu yen, Puan kazan!</p>
                     <button class="play-btn" id="btnPlayRps" disabled style="background:#718096; cursor:not-allowed;">KİLİTLİ OYUN</button>
                 </div>
             </div>
@@ -890,11 +889,17 @@
             }
         }
 
+        /* GÜNCELLENEN SAYI TAHMİN OYUNU (1 - 10 ARASI) */
         function playGuessGame() {
-            const guess = prompt("1 ile 5 arasında bir sayı tahmin et:");
+            const guess = prompt("1 ile 10 arasında bir sayı tahmin et:");
             if (!guess) return;
-            const secret = Math.floor(Math.random() * 5) + 1;
-            if (parseInt(guess) === secret) {
+            const num = parseInt(guess);
+            if (isNaN(num) || num < 1 || num > 10) {
+                alert("Lütfen 1 ile 10 arasında geçerli bir sayı girin!");
+                return;
+            }
+            const secret = Math.floor(Math.random() * 10) + 1;
+            if (num === secret) {
                 alert(`Tebrikler! Doğru tahmin (${secret}). +100 Puan Kazandın!`);
                 updateScore(100);
             } else {
@@ -902,14 +907,28 @@
             }
         }
 
+        /* GÜNCELLENEN TAŞ-KAĞIT-MAKAS OYUNU (ZOR BOT / HİLELİ MOD) */
         function playRpsGame() {
-            const userChoice = prompt("Seçimini yaz: (taş, kağıt, makas)").toLowerCase();
+            const userChoice = prompt("Seçimini yaz: (taş, kağıt, makas)").toLowerCase().trim();
             if (!['taş', 'kağıt', 'makas'].includes(userChoice)) {
                 alert("Lütfen sadece 'taş', 'kağıt' veya 'makas' yazın!");
                 return;
             }
-            const choices = ['taş', 'kağıt', 'makas'];
-            const botChoice = choices[Math.floor(Math.random() * 3)];
+
+            const winningMoves = {
+                'taş': 'kağıt',
+                'kağıt': 'makas',
+                'makas': 'taş'
+            };
+
+            let botChoice = "";
+            // Bot %75 ihtimalle sen ne seçersen seninkini yenecek hamleyi seçer (Zor Mod)
+            if (Math.random() < 0.75) {
+                botChoice = winningMoves[userChoice];
+            } else {
+                const choices = ['taş', 'kağıt', 'makas'];
+                botChoice = choices[Math.floor(Math.random() * 3)];
+            }
 
             if (userChoice === botChoice) {
                 alert(`Berabere! İkiniz de "${userChoice}" seçtiniz.`);
@@ -918,10 +937,10 @@
                 (userChoice === 'kağıt' && botChoice === 'taş') ||
                 (userChoice === 'makas' && botChoice === 'kağıt')
             ) {
-                alert(`Kazandın! Sen: ${userChoice} vs Bot: ${botChoice}. +1.000 Puan Kazandın!`);
+                alert(`İnanılmaz! Zorlu Botu yendin! Sen: ${userChoice} vs Bot: ${botChoice}. +1.000 Puan Kazandın!`);
                 updateScore(1000);
             } else {
-                alert(`Kaybettin! Sen: ${userChoice} vs Bot: ${botChoice}. Tekrar dene!`);
+                alert(`Bot seni yendi! Sen: ${userChoice} vs Bot: ${botChoice}. Zor modda kazanmak kolay değil!`);
             }
         }
 
