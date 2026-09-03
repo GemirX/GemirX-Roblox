@@ -73,7 +73,8 @@
         .wheel-pointer { width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 24px solid #ff003c; position: absolute; top: -10px; z-index: 10; }
         #wheelCanvas { border: 4px solid #00f3ff; border-radius: 50%; box-shadow: 0 0 20px rgba(0,243,255,0.4); max-width: 100%; height: auto; transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
 
-        .card-form { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 18px; max-width: 500px; margin: 0 auto 15px auto; text-align: center; }
+        .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
+        .card-form { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 18px; text-align: center; }
     </style>
 </head>
 <body>
@@ -230,10 +231,22 @@
 
         <div id="tab-admin" class="tab-content">
             <div class="section-title" style="color:#ff003c;">⚡ YÖNETİCİ KONTROL PANELİ</div>
-            <div class="card-form">
-                <h3>Oyuncuyu Veritabanından Sil</h3>
-                <input type="text" id="admDeleteUser" placeholder="Silinecek Kullanıcı Adı">
-                <button class="play-btn" onclick="deleteUserByAdmin()" style="margin-top:10px; background:#ff003c; color:#fff;">KULLANICIYI SİL</button>
+            <div class="admin-grid">
+                <div class="card-form">
+                    <h3>Puan Yönetimi</h3>
+                    <input type="text" id="admScoreUser" placeholder="Kullanıcı Adı">
+                    <input type="number" id="admScoreAmount" placeholder="Puan Miktarı (Örn: 5000)">
+                    <div style="display:flex; gap:10px; margin-top:10px;">
+                        <button class="play-btn" onclick="modifyScoreByAdmin(true)">+ EKLE</button>
+                        <button class="play-btn" style="background:#ff003c; color:#fff;" onclick="modifyScoreByAdmin(false)">- ÇIKAR</button>
+                    </div>
+                </div>
+
+                <div class="card-form">
+                    <h3>Oyuncuyu Sil</h3>
+                    <input type="text" id="admDeleteUser" placeholder="Silinecek Kullanıcı Adı">
+                    <button class="play-btn" onclick="deleteUserByAdmin()" style="margin-top:10px; background:#ff003c; color:#fff;">KULLANICIYI SİL</button>
+                </div>
             </div>
         </div>
     </div>
@@ -241,7 +254,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, collection, addDoc, getDocs, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, deleteDoc, collection, addDoc, getDocs, query, where, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const ADMIN_EMAIL = "gemirx.roblox.1717@gmail.com";
 
@@ -422,6 +435,52 @@
             }, 4000);
         };
 
+        // ADMIN PUAN EKLEME / ÇIKARMA
+        window.modifyScoreByAdmin = async (isAdd) => {
+            const uname = document.getElementById('admScoreUser').value.trim();
+            const amount = parseInt(document.getElementById('admScoreAmount').value);
+
+            if (!uname || isNaN(amount) || amount <= 0) {
+                showModal("HATA", "Lütfen geçerli bir kullanıcı adı ve miktar girin.");
+                return;
+            }
+
+            const q = query(collection(db, "users"), where("username", "==", uname));
+            const snapshot = await getDocs(q);
+
+            if (snapshot.empty) {
+                showModal("HATA", "Bu kullanıcı adına sahip oyuncu bulunamadı.");
+                return;
+            }
+
+            snapshot.forEach(async (docSnap) => {
+                const currentScore = docSnap.data().score || 0;
+                const newScore = isAdd ? currentScore + amount : Math.max(0, currentScore - amount);
+                await setDoc(doc(db, "users", docSnap.id), { score: newScore }, { merge: true });
+                showModal("BAŞARILI", `${uname} kullanıcısının puanı ${isAdd ? 'artırıldı' : 'düşürüldü'}.\nYeni Puan: ${newScore.toLocaleString()}`);
+            });
+        };
+
+        // ADMIN OYUNCU SİLME
+        window.deleteUserByAdmin = async () => {
+            const uname = document.getElementById('admDeleteUser').value.trim();
+            if (!uname) return;
+
+            const q = query(collection(db, "users"), where("username", "==", uname));
+            const snapshot = await getDocs(q);
+
+            if (snapshot.empty) {
+                showModal("HATA", "Kullanıcı bulunamadı.");
+                return;
+            }
+
+            snapshot.forEach(async (docSnap) => {
+                await deleteDoc(doc(db, "users", docSnap.id));
+                showModal("BAŞARILI", `${uname} hesabı veritabanından silindi.`);
+                document.getElementById('admDeleteUser').value = '';
+            });
+        };
+
         window.sendChatMessage = async () => {
             const input = document.getElementById('chatInput');
             if (!input.value.trim() || !currentUser) return;
@@ -542,7 +601,6 @@
                         score = userData.score || 0;
                         scoreVal.innerText = score.toLocaleString();
 
-                        // UI Güncellemeleri
                         document.getElementById('btnGuessGame').innerText = userData.guessGame ? "OYNA" : "KİLİTLİ (1.000 PTS)";
                         document.getElementById('btnRPSGame').innerText = userData.rpsGame ? "OYNA" : "KİLİTLİ (5.000 PTS)";
                         
