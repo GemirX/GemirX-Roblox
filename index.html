@@ -17,7 +17,7 @@
         .auth-container { display: none; justify-content: center; align-items: center; min-height: 100vh; width: 100%; padding: 15px; }
         .auth-box { background: rgba(10,15,30,0.95); border: 2px solid #00f3ff; padding: 30px 20px; border-radius: 12px; width: 100%; max-width: 360px; box-shadow: 0 0 25px rgba(0,243,255,0.4); text-align: center; }
         .auth-box h2 { font-family: 'Orbitron', sans-serif; color: #00f3ff; margin-bottom: 15px; font-size: 20px; }
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #00f3ff; color: #fff; border-radius: 6px; outline: none; font-size: 14px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #00f3ff; color: #fff; border-radius: 6px; outline: none; font-size: 14px; }
         .btn-auth { width: 100%; padding: 12px; background: #00f3ff; border: none; font-weight: bold; cursor: pointer; border-radius: 6px; color: #000; margin-top: 10px; font-family: 'Orbitron', sans-serif; }
         .toggle { margin-top: 15px; color: #8a99ad; font-size: 13px; }
         .toggle a { color: #00f3ff; cursor: pointer; text-decoration: underline; }
@@ -73,6 +73,9 @@
         .wheel-pointer { width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-top: 24px solid #ff003c; position: absolute; top: -10px; z-index: 10; }
         #wheelCanvas { border: 4px solid #00f3ff; border-radius: 50%; box-shadow: 0 0 20px rgba(0,243,255,0.4); max-width: 100%; height: auto; transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99); }
 
+        .inventory-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
+        .inv-item { background: rgba(13,20,38,0.6); border: 1px solid #00f3ff; border-radius: 10px; padding: 15px; text-align: center; }
+
         .admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; }
         .card-form { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; padding: 18px; text-align: center; }
     </style>
@@ -113,6 +116,8 @@
             <div class="nav-links">
                 <a class="nav-btn active" onclick="switchTab('games')">🎮 OYUNLAR</a>
                 <a class="nav-btn" onclick="switchTab('wheel')">🎡 ÇARK</a>
+                <a class="nav-btn" onclick="switchTab('inventory')">🎒 ENVANTER</a>
+                <a class="nav-btn" onclick="switchTab('trade')">🤝 TRADE</a>
                 <a class="nav-btn" onclick="switchTab('leaderboard')">🏆 LİDERLER</a>
                 <a class="nav-btn" onclick="switchTab('rewards')">🎁 MAĞAZA</a>
                 <a class="nav-btn" onclick="switchTab('chat')">💬 CHAT</a>
@@ -168,6 +173,26 @@
                 <div class="wheel-pointer"></div>
                 <canvas id="wheelCanvas" width="320" height="320"></canvas>
                 <button class="play-btn" onclick="spinWheel()" style="max-width:240px; margin-top:20px;">ÇARKI ÇEVİR (2.500 PTS)</button>
+            </div>
+        </div>
+
+        <div id="tab-inventory" class="tab-content">
+            <div class="section-title">ENVANTERİN</div>
+            <div class="inventory-grid" id="inventoryGrid">
+                <p>Yükleniyor...</p>
+            </div>
+        </div>
+
+        <div id="tab-trade" class="tab-content">
+            <div class="hero-banner">
+                <h1>Oyuncular Arası Puan Transferi</h1>
+                <p>İstediğin bir kullanıcıya doğrudan puan gönderebilirsin!</p>
+            </div>
+            <div class="card-form" style="max-width:400px; margin: 0 auto;">
+                <h3>Puan Transfer Et (Trade)</h3>
+                <input type="text" id="tradeUser" placeholder="Alıcı Kullanıcı Adı">
+                <input type="number" id="tradeAmount" placeholder="Gönderilecek Puan Miktarı">
+                <button class="play-btn" onclick="sendTrade()" style="margin-top:10px;">PUAN GÖNDER</button>
             </div>
         </div>
 
@@ -397,6 +422,51 @@
             showModal("BAŞARILI! 🎉", "Satın alım tamamlandı!");
         };
 
+        window.sendTrade = async () => {
+            const targetUser = document.getElementById('tradeUser').value.trim();
+            const amount = parseInt(document.getElementById('tradeAmount').value);
+
+            if (!targetUser || isNaN(amount) || amount <= 0) {
+                showModal("HATA", "Lütfen geçerli bir kullanıcı adı ve miktar girin.");
+                return;
+            }
+
+            if (amount > score) {
+                showModal("YETERSİZ PUAN", "Göndermek istediğin kadar puana sahip değilsin!");
+                return;
+            }
+
+            const currentUsername = currentUser.displayName || currentUser.email.split('@')[0];
+            if (targetUser.toLowerCase() === currentUsername.toLowerCase()) {
+                showModal("HATA", "Kendine puan gönderemezsin!");
+                return;
+            }
+
+            const q = query(collection(db, "users"), where("username", "==", targetUser));
+            const snapshot = await getDocs(q);
+
+            if (snapshot.empty) {
+                showModal("HATA", "Alıcı kullanıcı bulunamadı.");
+                return;
+            }
+
+            let targetDocId = null;
+            let targetCurrentScore = 0;
+
+            snapshot.forEach(docSnap => {
+                targetDocId = docSnap.id;
+                targetCurrentScore = docSnap.data().score || 0;
+            });
+
+            await updateScore(-amount);
+            await setDoc(doc(db, "users", targetDocId), { score: targetCurrentScore + amount }, { merge: true });
+
+            document.getElementById('tradeUser').value = '';
+            document.getElementById('tradeAmount').value = '';
+
+            showModal("İŞLEM BAŞARILI 🎉", `${targetUser} kullanıcısına ${amount.toLocaleString()} PTS başarıyla gönderildi!`);
+        };
+
         const rewardsList = [
             { label: "5.000 PTS", value: 5000 },
             { label: "10.000 PTS", value: 10000 },
@@ -421,7 +491,6 @@
             const selectedIndex = Math.floor(Math.random() * rewardsList.length);
             const degreesPerSegment = 360 / rewardsList.length;
 
-            // Tam hassas açı hesabı (Ok tam üstte durduğu için)
             const stopDegree = (360 - (selectedIndex * degreesPerSegment)) - (degreesPerSegment / 2);
             const extraRotations = 5 * 360;
             currentWheelRotation += extraRotations + stopDegree - (currentWheelRotation % 360);
@@ -503,7 +572,34 @@
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             document.getElementById('tab-' + tabName).classList.add('active');
             if(tabName === 'wheel') drawWheel();
+            if(tabName === 'inventory') renderInventory();
         };
+
+        function renderInventory() {
+            const invGrid = document.getElementById('inventoryGrid');
+            invGrid.innerHTML = '';
+            
+            let items = [];
+            if (userData.guessGame) items.push({ title: "🔓 Sayı Tahmin Oyunu", desc: "Sayı Tahmin Oyunu Erişim Hakkı" });
+            if (userData.rpsGame) items.push({ title: "🔓 Taş-Kağıt-Makas", desc: "Taş-Kağıt-Makas Oyunu Erişim Hakkı" });
+            if (userData.neonFrame) items.push({ title: "🖼️ Neon Çerçeve", desc: "Profiline Parlak Kırmızı/Mavi Çerçeve Verir" });
+            if (userData.hasBoost) items.push({ title: "⚡ 2X Click Boost", desc: "Clicker Oyununda Çift Puan Verir" });
+            if (userData.isVip) items.push({ title: "💎 VIP Unvanı", desc: "Sohbette VIP Rozeti Gösterir" });
+
+            if (items.length === 0) {
+                invGrid.innerHTML = '<p style="grid-column: 1/-1; color:#718096;">Envanterinde henüz hiç eşya yok. Mağazadan alışveriş yapabilirsin!</p>';
+                return;
+            }
+
+            items.forEach(item => {
+                invGrid.innerHTML += `
+                    <div class="inv-item">
+                        <h4 style="color:#00f3ff; margin-bottom:5px;">${item.title}</h4>
+                        <p style="font-size:12px; color:#a0aec0;">${item.desc}</p>
+                    </div>
+                `;
+            });
+        }
 
         async function updateScore(amount) {
             if (!currentUser) return;
@@ -522,7 +618,6 @@
 
             ctx.clearRect(0, 0, 320, 320);
 
-            // Çarkı tam yukarıdan (12 yönünden) başlatacak şekilde -PI/2 ofseti veriyoruz
             for (let i = 0; i < numOptions; i++) {
                 const angle = (i * arcSize) - (Math.PI / 2);
                 ctx.beginPath();
