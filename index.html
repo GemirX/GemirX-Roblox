@@ -50,9 +50,13 @@
         .game-card h3 { font-family: 'Orbitron', sans-serif; font-size: 15px; color: #fff; margin-bottom: 8px; }
         .game-card p { color: #718096; font-size: 13px; margin-bottom: 15px; }
         
+        .game-card.coming-soon { border-style: dashed; border-color: rgba(234, 179, 8, 0.4); background: rgba(13,20,38,0.3); opacity: 0.85; }
+        .game-card.coming-soon:hover { border-color: #eab308; box-shadow: 0 5px 20px rgba(234,179,8,0.2); }
+
         .play-btn { background: linear-gradient(90deg, #00f3ff, #0066ff); color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; width: 100%; font-size: 13px; transition: 0.2s; }
         .play-btn:disabled { background: #333 !important; color: #777 !important; cursor: not-allowed; }
         .play-btn:active { transform: scale(0.98); }
+        .play-btn.btn-coming { background: #222 !important; color: #eab308 !important; border: 1px solid #eab308; cursor: not-allowed; }
 
         .cyber-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; }
         .cyber-modal-box { background: #0a0f1e; border: 2px solid #00f3ff; border-radius: 12px; padding: 25px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 20px rgba(0,243,255,0.4); }
@@ -161,6 +165,13 @@
                     <p>Botu yen, +3.500 Puan kazan!</p>
                     <button class="play-btn" id="btnRPSGame" onclick="playRPSGame()">KİLİTLİ (5.000 PTS)</button>
                 </div>
+
+                <!-- YAKINDA GELECEK OYUN -->
+                <div class="game-card coming-soon">
+                    <h3 style="color:#eab308;">🚀 YENİ OYUN</h3>
+                    <p>Çok yakında harika bir mini oyun ekleniyor!</p>
+                    <button class="play-btn btn-coming" disabled>YAKINDA GELECEK</button>
+                </div>
             </div>
         </div>
 
@@ -239,6 +250,13 @@
                     <h3>💎 VIP UNVAN</h3>
                     <p>Chat odasında isminin yanına VIP rozeti ekler.</p>
                     <button class="play-btn" id="buyVipBtn" onclick="buyUnlock('isVip', 850000)">SATIN AL (850.000 PTS)</button>
+                </div>
+
+                <!-- YAKINDA GELECEK EŞYA -->
+                <div class="game-card coming-soon">
+                    <h3 style="color:#eab308;">✨ ÖZEL EŞYA</h3>
+                    <p>Yeni profil efektleri ve unvanlar yolda!</p>
+                    <button class="play-btn btn-coming" disabled>YAKINDA GELECEK</button>
                 </div>
             </div>
         </div>
@@ -660,7 +678,6 @@
                         return;
                     }
 
-                    // Benzersiz kullanıcı adı kontrolü
                     const q = query(collection(db, "users"), where("username", "==", username));
                     const querySnapshot = await getDocs(q);
 
