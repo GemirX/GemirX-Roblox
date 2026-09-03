@@ -52,6 +52,12 @@
         .play-btn { background: linear-gradient(90deg, #00f3ff, #0066ff); color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; width: 100%; font-size: 13px; transition: 0.2s; }
         .play-btn:active { transform: scale(0.98); }
 
+        /* Site İçi Özel Bildirim Kutusu */
+        .cyber-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; }
+        .cyber-modal-box { background: #0a0f1e; border: 2px solid #00f3ff; border-radius: 12px; padding: 25px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 20px rgba(0,243,255,0.4); }
+        .cyber-modal-box h3 { font-family: 'Orbitron', sans-serif; color: #00f3ff; margin-bottom: 15px; }
+        .cyber-modal-box p { font-size: 14px; margin-bottom: 15px; color: #a0aec0; }
+
         .chat-box { background: rgba(13,20,38,0.6); border: 1px solid rgba(0,243,255,0.2); border-radius: 12px; height: 320px; padding: 12px; overflow-y: auto; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
         .chat-msg { background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 8px; font-size: 13px; border-left: 3px solid #00f3ff; word-break: break-word; }
         .chat-msg b { color: #00f3ff; margin-right: 5px; }
@@ -74,6 +80,15 @@
     <div class="loading-screen" id="loadingScreen">
         <div class="spinner"></div>
         <div>YÜKLENİYOR...</div>
+    </div>
+
+    <div class="cyber-modal" id="cyberModal">
+        <div class="cyber-modal-box">
+            <h3 id="modalTitle">BİLDİRİM</h3>
+            <p id="modalBody">Mesaj içeriği...</p>
+            <div id="modalInputs"></div>
+            <button class="play-btn" onclick="closeModal()" style="margin-top:10px;">TAMAM</button>
+        </div>
     </div>
 
     <div class="auth-container" id="authContainer">
@@ -123,6 +138,12 @@
                 </div>
 
                 <div class="game-card">
+                    <h3>🎁 GÜNLÜK ÖDÜL</h3>
+                    <p>Her gün gir, +500 PTS Kap!</p>
+                    <button class="play-btn" style="background:#ff003c; color:#fff;" onclick="claimDailyReward()">ÖDÜLÜ AL</button>
+                </div>
+
+                <div class="game-card">
                     <h3>SAYI TAHMİN OYUNU</h3>
                     <p>1 ile 10 arası sayıyı bul, +450 Puan kazan!</p>
                     <button class="play-btn" onclick="playGuessGame()">OYNA</button>
@@ -139,12 +160,12 @@
         <div id="tab-wheel" class="tab-content">
             <div class="hero-banner">
                 <h1>Şans Çarkı</h1>
-                <p>100 Puan öde, çarkı çevir ve büyük ödülleri kazan!</p>
+                <p>Ücretsiz çarkı çevir, puanları kap!</p>
             </div>
             <div class="wheel-container">
                 <div class="wheel-pointer"></div>
                 <canvas id="wheelCanvas" width="320" height="320"></canvas>
-                <button class="play-btn" onclick="spinWheel()" style="max-width:200px; margin-top:20px;">ÇARKI ÇEVİR (100 PTS)</button>
+                <button class="play-btn" onclick="spinWheel()" style="max-width:200px; margin-top:20px;">ÇARKI ÇEVİR</button>
             </div>
         </div>
 
@@ -168,14 +189,14 @@
             <div class="section-title">SİTE MAĞAZASI & ÖDÜLLER</div>
             <div class="games-grid">
                 <div class="game-card">
-                    <h3>🎁 GÜNLÜK ÖDÜL</h3>
-                    <p>Her gün giriş yap, ücretsiz +500 PTS kazan!</p>
-                    <button class="play-btn" onclick="claimDailyReward()">ÖDÜLÜ AL (+500 PTS)</button>
+                    <h3>⚡ 2X BOOST</h3>
+                    <p>Tıklamalarını 2 ile çarpar.</p>
+                    <button class="play-btn" onclick="buyItem('2X Boost', 5000)">SATIN AL (5.000 PTS)</button>
                 </div>
                 <div class="game-card">
-                    <h3>⚡ 2X BOOST</h3>
-                    <p>Yakında aktifleşecek.</p>
-                    <button class="play-btn" style="opacity:0.5; cursor:not-allowed;">ÇOK YAKINDA</button>
+                    <h3>💎 VIP UNVAN</h3>
+                    <p>Sohbet odasında VIP rozeti al.</p>
+                    <button class="play-btn" onclick="buyItem('VIP Unvan', 15000)">SATIN AL (15.000 PTS)</button>
                 </div>
             </div>
         </div>
@@ -234,45 +255,73 @@
         const scoreVal = document.getElementById('scoreVal');
         const usernameInput = document.getElementById('username');
 
+        // Site İçi Bildirim Gösterici
+        window.showModal = (title, msg, htmlContent = "") => {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalBody').innerText = msg;
+            document.getElementById('modalInputs').innerHTML = htmlContent;
+            document.getElementById('cyberModal').style.display = 'flex';
+        };
+
+        window.closeModal = () => {
+            document.getElementById('cyberModal').style.display = 'none';
+        };
+
         // CLICKER
         window.playClicker = async () => {
             await updateScore(1);
         };
 
         // SAYI TAHMİN
-        window.playGuessGame = async () => {
+        window.playGuessGame = () => {
             const target = Math.floor(Math.random() * 10) + 1;
-            const input = prompt("1 ile 10 arasında bir sayı tahmin edin:");
-            if (input === null) return;
-            
-            if (parseInt(input) === target) {
-                alert(`Tebrikler! Doğru bildin 🎉 Sayı: ${target}\n+450 Puan Kazandın!`);
+            const html = `
+                <input type="number" id="guessInput" min="1" max="10" placeholder="1-10 Arası Sayı Yaz" style="text-align:center;">
+                <button class="play-btn" onclick="submitGuess(${target})">TAHMİN ET</button>
+            `;
+            showModal("SAYI TAHMİN OYUNU", "1 ile 10 arasındaki doğru sayıyı tahmin et!", html);
+        };
+
+        window.submitGuess = async (target) => {
+            const val = parseInt(document.getElementById('guessInput').value);
+            closeModal();
+            if (val === target) {
+                showModal("TEBRİKLER! 🎉", `Doğru bildin! Sayı: ${target}\n+450 Puan Kazandın!`);
                 await updateScore(450);
             } else {
-                alert(`Bilemedin! Doğru cevap: ${target}`);
+                showModal("KAYBETTİN!", `Bilemedin, Doğru cevap: ${target}`);
             }
         };
 
         // TAŞ KAĞIT MAKAS
-        window.playRPSGame = async () => {
+        window.playRPSGame = () => {
+            const html = `
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <button class="play-btn" onclick="submitRPS('taş')">🪨 TAŞ</button>
+                    <button class="play-btn" onclick="submitRPS('kağıt')">📄 KAĞIT</button>
+                    <button class="play-btn" onclick="submitRPS('makas')">✂️ MAKAS</button>
+                </div>
+            `;
+            showModal("TAŞ-KAĞIT-MAKAS", "Hamleni Seç!", html);
+        };
+
+        window.submitRPS = async (userChoice) => {
+            closeModal();
             const choices = ['taş', 'kağıt', 'makas'];
-            const input = prompt("Seçimini yazın: Taş, Kağıt veya Makas")?.toLowerCase().trim();
-            if (!input || !choices.includes(input)) return;
+            const botChoice = choices[Math.floor(Math.random() * choices.length)];
+            let result = `Sen: ${userChoice.toUpperCase()} | Bot: ${botChoice.toUpperCase()}\n\n`;
 
-            const bot = choices[Math.floor(Math.random() * choices.length)];
-            let result = `Sen: ${input.toUpperCase()} | Bot: ${bot.toUpperCase()}\n\n`;
-
-            if (input === bot) {
-                alert(result + "BERABERE!");
+            if (userChoice === botChoice) {
+                showModal("BERABERE!", result + "Kazanan olmadı.");
             } else if (
-                (input === 'taş' && bot === 'makas') ||
-                (input === 'kağıt' && bot === 'taş') ||
-                (input === 'makas' && bot === 'kağıt')
+                (userChoice === 'taş' && botChoice === 'makas') ||
+                (userChoice === 'kağıt' && botChoice === 'taş') ||
+                (userChoice === 'makas' && botChoice === 'kağıt')
             ) {
-                alert(result + "KAZANDIN! +3.500 Puan!");
+                showModal("KAZANDIN! 🎉", result + "+3.500 Puan Kazandın!");
                 await updateScore(3500);
             } else {
-                alert(result + "KAYBETTİN!");
+                showModal("KAYBETTİN!", result + "Bot seni yendi.");
             }
         };
 
@@ -285,13 +334,23 @@
 
             if (lastClaim && now - parseInt(lastClaim) < oneDay) {
                 const remainingHours = Math.ceil((oneDay - (now - parseInt(lastClaim))) / (1000 * 60 * 60));
-                alert(`Günlük ödülünü zaten aldın! Yinede ${remainingHours} saat sonra tekrar dene.`);
+                showModal("GÜNLÜK ÖDÜL", `Günlük ödülünü zaten aldın! Yinede ${remainingHours} saat sonra tekrar dene.`);
                 return;
             }
 
             localStorage.setItem('dailyReward_' + currentUser.uid, now.toString());
             await updateScore(500);
-            alert("Tebrikler! Günlük +500 PTS Ödülünü Aldın! 🎉");
+            showModal("TEBRİKLER! 🎉", "Günlük +500 PTS Ödülünü Aldın!");
+        };
+
+        // MAĞAZADAN EŞYA ALMA
+        window.buyItem = async (itemName, price) => {
+            if (score < price) {
+                showModal("YETERSİZ PUAN", `Bu ürünü almak için ${price.toLocaleString()} PTS gerekli.`);
+                return;
+            }
+            await updateScore(-price);
+            showModal("BAŞARILI! 🛍️", `${itemName} başarıyla satın alındı!`);
         };
 
         // ÇARK ÇEVİRME
@@ -299,19 +358,16 @@
             { label: "50 PTS", value: 50 },
             { label: "100 PTS", value: 100 },
             { label: "200 PTS", value: 200 },
-            { label: "PAS", value: 0 },
+            { label: "150 PTS", value: 150 },
             { label: "500 PTS", value: 500 },
-            { label: "0 PTS", value: 0 },
+            { label: "300 PTS", value: 300 },
             { label: "1000 PTS", value: 1000 },
             { label: "25 PTS", value: 25 }
         ];
 
         window.spinWheel = async () => {
             if (isSpinning) return;
-            if (score < 100) return alert("Çarkı çevirmek için en az 100 PTS gerekli!");
-
             isSpinning = true;
-            await updateScore(-100);
 
             const selectedIndex = Math.floor(Math.random() * rewardsList.length);
             const degreesPerSegment = 360 / rewardsList.length;
@@ -324,12 +380,8 @@
 
             setTimeout(async () => {
                 const prize = rewardsList[selectedIndex];
-                if (prize.value > 0) {
-                    alert(`Tebrikler! Çarktan ${prize.label} Kazandın! 🎉`);
-                    await updateScore(prize.value);
-                } else {
-                    alert(`Maalesef! Çark sonucu: ${prize.label}`);
-                }
+                showModal("ÇARK SONUCU 🎉", `Çarktan ${prize.label} Kazandın!`);
+                await updateScore(prize.value);
                 isSpinning = false;
             }, 4000);
         };
