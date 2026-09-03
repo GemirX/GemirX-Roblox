@@ -33,7 +33,8 @@
         .score-badge { background: rgba(0,243,255,0.1); border: 1px solid #00f3ff; padding: 6px 12px; border-radius: 20px; color: #00f3ff; font-weight: 700; font-size: 14px; }
         .btn-logout { background: transparent; border: 1px solid #ff003c; color: #ff003c; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 13px; }
 
-        .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: #00f3ff; color: #000; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Orbitron', sans-serif; box-shadow: 0 0 10px rgba(0,243,255,0.5); }
+        .avatar-circle { width: 40px; height: 40px; border-radius: 50%; background: #00f3ff; color: #000; display: flex; align-items: center; justify-content: center; font-weight: bold; font-family: 'Orbitron', sans-serif; box-shadow: 0 0 10px rgba(0,243,255,0.5); transition: 0.3s; }
+        .avatar-circle.neon-frame { border: 3px solid #ff003c; box-shadow: 0 0 15px #ff003c, 0 0 25px #00f3ff; }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -50,9 +51,9 @@
         .game-card p { color: #718096; font-size: 13px; margin-bottom: 15px; }
         
         .play-btn { background: linear-gradient(90deg, #00f3ff, #0066ff); color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-family: 'Orbitron', sans-serif; width: 100%; font-size: 13px; transition: 0.2s; }
+        .play-btn:disabled { background: #333 !important; color: #777 !important; cursor: not-allowed; }
         .play-btn:active { transform: scale(0.98); }
 
-        /* Site İçi Özel Bildirim Kutusu */
         .cyber-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; justify-content: center; align-items: center; }
         .cyber-modal-box { background: #0a0f1e; border: 2px solid #00f3ff; border-radius: 12px; padding: 25px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 20px rgba(0,243,255,0.4); }
         .cyber-modal-box h3 { font-family: 'Orbitron', sans-serif; color: #00f3ff; margin-bottom: 15px; }
@@ -133,7 +134,7 @@
             <div class="games-grid">
                 <div class="game-card">
                     <h3>NEON CLICKER</h3>
-                    <p>Tıkladıkça anında Puan kazan.</p>
+                    <p>Tıkladıkça Puan kazan. (Boost Katlar)</p>
                     <button class="play-btn" onclick="playClicker()">+1 PUAN AL</button>
                 </div>
 
@@ -145,14 +146,14 @@
 
                 <div class="game-card">
                     <h3>SAYI TAHMİN OYUNU</h3>
-                    <p>1 ile 10 arası sayıyı bul, +450 Puan kazan!</p>
-                    <button class="play-btn" onclick="playGuessGame()">OYNA</button>
+                    <p>1-10 arası tahmin et, +450 Puan kazan!</p>
+                    <button class="play-btn" id="btnGuessGame" onclick="playGuessGame()">KİLİTLİ (1.000 PTS)</button>
                 </div>
 
                 <div class="game-card">
                     <h3>TAŞ-KAĞIT-MAKAS</h3>
                     <p>Botu yen, +3.500 Puan kazan!</p>
-                    <button class="play-btn" onclick="playRPSGame()">OYNA</button>
+                    <button class="play-btn" id="btnRPSGame" onclick="playRPSGame()">KİLİTLİ (5.000 PTS)</button>
                 </div>
             </div>
         </div>
@@ -160,12 +161,12 @@
         <div id="tab-wheel" class="tab-content">
             <div class="hero-banner">
                 <h1>Şans Çarkı</h1>
-                <p>Ücretsiz çarkı çevir, puanları kap!</p>
+                <p>Çarkı Çevir: 250 PTS | Büyük ödülleri kazan!</p>
             </div>
             <div class="wheel-container">
                 <div class="wheel-pointer"></div>
                 <canvas id="wheelCanvas" width="320" height="320"></canvas>
-                <button class="play-btn" onclick="spinWheel()" style="max-width:200px; margin-top:20px;">ÇARKI ÇEVİR</button>
+                <button class="play-btn" onclick="spinWheel()" style="max-width:220px; margin-top:20px;">ÇARKI ÇEVİR (250 PTS)</button>
             </div>
         </div>
 
@@ -186,17 +187,32 @@
         </div>
 
         <div id="tab-rewards" class="tab-content">
-            <div class="section-title">SİTE MAĞAZASI & ÖDÜLLER</div>
+            <div class="section-title">SİTE MAĞAZASI</div>
             <div class="games-grid">
                 <div class="game-card">
+                    <h3>🔓 SAYI TAHMİN OYUNU</h3>
+                    <p>Sayı tahmin oyununun kilidini açar.</p>
+                    <button class="play-btn" id="buyGuessBtn" onclick="buyUnlock('guessGame', 1000)">AÇ (1.000 PTS)</button>
+                </div>
+                <div class="game-card">
+                    <h3>🔓 TAŞ-KAĞIT-MAKAS</h3>
+                    <p>Taş-Kağıt-Makas oyununun kilidini açar.</p>
+                    <button class="play-btn" id="buyRpsBtn" onclick="buyUnlock('rpsGame', 5000)">AÇ (5.000 PTS)</button>
+                </div>
+                <div class="game-card">
+                    <h3>🖼️ NEON ÇERÇEVE</h3>
+                    <p>Profil resmine parlayan neon çerçeve ekler.</p>
+                    <button class="play-btn" id="buyFrameBtn" onclick="buyUnlock('neonFrame', 50000)">SATIN AL (50.000 PTS)</button>
+                </div>
+                <div class="game-card">
                     <h3>⚡ 2X BOOST</h3>
-                    <p>Tıklamalarını 2 ile çarpar.</p>
-                    <button class="play-btn" onclick="buyItem('2X Boost', 5000)">SATIN AL (5.000 PTS)</button>
+                    <p>Tıklama puanlarını kalıcı olarak 2 katına çıkarır.</p>
+                    <button class="play-btn" id="buyBoostBtn" onclick="buyUnlock('hasBoost', 100000)">SATIN AL (100.000 PTS)</button>
                 </div>
                 <div class="game-card">
                     <h3>💎 VIP UNVAN</h3>
-                    <p>Sohbet odasında VIP rozeti al.</p>
-                    <button class="play-btn" onclick="buyItem('VIP Unvan', 15000)">SATIN AL (15.000 PTS)</button>
+                    <p>Chat odasında isminin yanına VIP rozeti ekler.</p>
+                    <button class="play-btn" id="buyVipBtn" onclick="buyUnlock('isVip', 250000)">SATIN AL (250.000 PTS)</button>
                 </div>
             </div>
         </div>
@@ -245,6 +261,7 @@
         let isSignUp = true;
         let score = 0;
         let currentUser = null;
+        let userData = {};
         let isSpinning = false;
         let currentWheelRotation = 0;
 
@@ -255,7 +272,6 @@
         const scoreVal = document.getElementById('scoreVal');
         const usernameInput = document.getElementById('username');
 
-        // Site İçi Bildirim Gösterici
         window.showModal = (title, msg, htmlContent = "") => {
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalBody').innerText = msg;
@@ -267,13 +283,16 @@
             document.getElementById('cyberModal').style.display = 'none';
         };
 
-        // CLICKER
         window.playClicker = async () => {
-            await updateScore(1);
+            const gain = userData.hasBoost ? 2 : 1;
+            await updateScore(gain);
         };
 
-        // SAYI TAHMİN
         window.playGuessGame = () => {
+            if (!userData.guessGame) {
+                showModal("KİLİTLİ OYUN", "Bu oyunu oynamak için Mağazadan 1.000 PTS karşılığında kilidini açmalısın!");
+                return;
+            }
             const target = Math.floor(Math.random() * 10) + 1;
             const html = `
                 <input type="number" id="guessInput" min="1" max="10" placeholder="1-10 Arası Sayı Yaz" style="text-align:center;">
@@ -293,8 +312,11 @@
             }
         };
 
-        // TAŞ KAĞIT MAKAS
         window.playRPSGame = () => {
+            if (!userData.rpsGame) {
+                showModal("KİLİTLİ OYUN", "Bu oyunu oynamak için Mağazadan 5.000 PTS karşılığında kilidini açmalısın!");
+                return;
+            }
             const html = `
                 <div style="display:flex; gap:10px; margin-top:10px;">
                     <button class="play-btn" onclick="submitRPS('taş')">🪨 TAŞ</button>
@@ -325,7 +347,6 @@
             }
         };
 
-        // GÜNLÜK ÖDÜL
         window.claimDailyReward = async () => {
             if (!currentUser) return;
             const lastClaim = localStorage.getItem('dailyReward_' + currentUser.uid);
@@ -334,7 +355,7 @@
 
             if (lastClaim && now - parseInt(lastClaim) < oneDay) {
                 const remainingHours = Math.ceil((oneDay - (now - parseInt(lastClaim))) / (1000 * 60 * 60));
-                showModal("GÜNLÜK ÖDÜL", `Günlük ödülünü zaten aldın! Yinede ${remainingHours} saat sonra tekrar dene.`);
+                showModal("GÜNLÜK ÖDÜL", `Ödülünü zaten aldın! ${remainingHours} saat sonra tekrar gelebilirsin.`);
                 return;
             }
 
@@ -343,17 +364,26 @@
             showModal("TEBRİKLER! 🎉", "Günlük +500 PTS Ödülünü Aldın!");
         };
 
-        // MAĞAZADAN EŞYA ALMA
-        window.buyItem = async (itemName, price) => {
-            if (score < price) {
-                showModal("YETERSİZ PUAN", `Bu ürünü almak için ${price.toLocaleString()} PTS gerekli.`);
+        window.buyUnlock = async (key, price) => {
+            if (userData[key]) {
+                showModal("BİLGİ", "Bu ürüne zaten sahipsin!");
                 return;
             }
-            await updateScore(-price);
-            showModal("BAŞARILI! 🛍️", `${itemName} başarıyla satın alındı!`);
+            if (score < price) {
+                showModal("YETERSİZ PUAN", `Bu kilit/ürün için ${price.toLocaleString()} PTS gerekiyor.`);
+                return;
+            }
+            
+            score -= price;
+            scoreVal.innerText = score.toLocaleString();
+            
+            const updateObj = { score };
+            updateObj[key] = true;
+            
+            await setDoc(doc(db, "users", currentUser.uid), updateObj, { merge: true });
+            showModal("BAŞARILI! 🎉", "Satın alım tamamlandı!");
         };
 
-        // ÇARK ÇEVİRME
         const rewardsList = [
             { label: "50 PTS", value: 50 },
             { label: "100 PTS", value: 100 },
@@ -367,7 +397,13 @@
 
         window.spinWheel = async () => {
             if (isSpinning) return;
+            if (score < 250) {
+                showModal("YETERSİZ PUAN", "Çarkı çevirmek için en az 250 PTS gerekiyor!");
+                return;
+            }
+
             isSpinning = true;
+            await updateScore(-250);
 
             const selectedIndex = Math.floor(Math.random() * rewardsList.length);
             const degreesPerSegment = 360 / rewardsList.length;
@@ -389,8 +425,14 @@
         window.sendChatMessage = async () => {
             const input = document.getElementById('chatInput');
             if (!input.value.trim() || !currentUser) return;
+            
+            let displayName = currentUser.displayName || currentUser.email.split('@')[0];
+            if (userData.isVip) {
+                displayName = "💎 [VIP] " + displayName;
+            }
+
             await addDoc(collection(db, "chats"), {
-                username: currentUser.displayName || currentUser.email.split('@')[0],
+                username: displayName,
                 message: input.value.trim(),
                 timestamp: serverTimestamp()
             });
@@ -411,7 +453,6 @@
             await setDoc(doc(db, "users", currentUser.uid), { score }, { merge: true });
         }
 
-        // Çark Çizimi
         function drawWheel() {
             const canvas = document.getElementById('wheelCanvas');
             if (!canvas) return;
@@ -463,6 +504,11 @@
                         username: username,
                         email: email,
                         score: 0,
+                        guessGame: false,
+                        rpsGame: false,
+                        neonFrame: false,
+                        hasBoost: false,
+                        isVip: false,
                         isAdmin: email === ADMIN_EMAIL
                     });
                 } else {
@@ -492,9 +538,32 @@
 
                 onSnapshot(doc(db, "users", user.uid), (docSnap) => {
                     if (docSnap.exists()) {
-                        const data = docSnap.data();
-                        score = data.score || 0;
+                        userData = docSnap.data();
+                        score = userData.score || 0;
                         scoreVal.innerText = score.toLocaleString();
+
+                        // UI Güncellemeleri
+                        document.getElementById('btnGuessGame').innerText = userData.guessGame ? "OYNA" : "KİLİTLİ (1.000 PTS)";
+                        document.getElementById('btnRPSGame').innerText = userData.rpsGame ? "OYNA" : "KİLİTLİ (5.000 PTS)";
+                        
+                        document.getElementById('buyGuessBtn').innerText = userData.guessGame ? "SAHİPSİN" : "AÇ (1.000 PTS)";
+                        document.getElementById('buyGuessBtn').disabled = !!userData.guessGame;
+
+                        document.getElementById('buyRpsBtn').innerText = userData.rpsGame ? "SAHİPSİN" : "AÇ (5.000 PTS)";
+                        document.getElementById('buyRpsBtn').disabled = !!userData.rpsGame;
+
+                        document.getElementById('buyFrameBtn').innerText = userData.neonFrame ? "SAHİPSİN" : "SATIN AL (50.000 PTS)";
+                        document.getElementById('buyFrameBtn').disabled = !!userData.neonFrame;
+
+                        document.getElementById('buyBoostBtn').innerText = userData.hasBoost ? "SAHİPSİN" : "SATIN AL (100.000 PTS)";
+                        document.getElementById('buyBoostBtn').disabled = !!userData.hasBoost;
+
+                        document.getElementById('buyVipBtn').innerText = userData.isVip ? "SAHİPSİN" : "SATIN AL (250.000 PTS)";
+                        document.getElementById('buyVipBtn').disabled = !!userData.isVip;
+
+                        if (userData.neonFrame) {
+                            document.getElementById('navAvatarCircle').classList.add('neon-frame');
+                        }
                     }
                 });
 
@@ -518,7 +587,8 @@
                     const data = docSnap.data();
                     const isAdminUser = data.isAdmin === true || data.email === ADMIN_EMAIL;
                     const adminBadge = isAdminUser ? ' <span style="background:#ff003c; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold;">⚡ ADMIN</span>' : '';
-                    leaderboardBody.innerHTML += `<tr><td>#${rank}</td><td>${data.username || 'Gizli'}${adminBadge}</td><td>⚡ ${data.score ? data.score.toLocaleString() : 0}</td></tr>`;
+                    const vipBadge = data.isVip ? ' <span style="color:#eab308; font-weight:bold;">💎 VIP</span>' : '';
+                    leaderboardBody.innerHTML += `<tr><td>#${rank}</td><td>${data.username || 'Gizli'}${vipBadge}${adminBadge}</td><td>⚡ ${data.score ? data.score.toLocaleString() : 0}</td></tr>`;
                     rank++;
                 });
             });
