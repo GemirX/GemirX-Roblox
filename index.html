@@ -203,17 +203,17 @@
                 <div class="game-card">
                     <h3>🖼️ NEON ÇERÇEVE</h3>
                     <p>Profil resmine parlayan neon çerçeve ekler.</p>
-                    <button class="play-btn" id="buyFrameBtn" onclick="buyUnlock('neonFrame', 50000)">SATIN AL (50.000 PTS)</button>
+                    <button class="play-btn" id="buyFrameBtn" onclick="buyUnlock('neonFrame', 300000)">SATIN AL (300.000 PTS)</button>
                 </div>
                 <div class="game-card">
                     <h3>⚡ 2X BOOST</h3>
                     <p>Tıklama puanlarını kalıcı olarak 2 katına çıkarır.</p>
-                    <button class="play-btn" id="buyBoostBtn" onclick="buyUnlock('hasBoost', 100000)">SATIN AL (100.000 PTS)</button>
+                    <button class="play-btn" id="buyBoostBtn" onclick="buyUnlock('hasBoost', 500000)">SATIN AL (500.000 PTS)</button>
                 </div>
                 <div class="game-card">
                     <h3>💎 VIP UNVAN</h3>
                     <p>Chat odasında isminin yanına VIP rozeti ekler.</p>
-                    <button class="play-btn" id="buyVipBtn" onclick="buyUnlock('isVip', 250000)">SATIN AL (250.000 PTS)</button>
+                    <button class="play-btn" id="buyVipBtn" onclick="buyUnlock('isVip', 850000)">SATIN AL (850.000 PTS)</button>
                 </div>
             </div>
         </div>
@@ -397,16 +397,15 @@
             showModal("BAŞARILI! 🎉", "Satın alım tamamlandı!");
         };
 
-        // Düzeltilmiş ve Dengelenmiş Çark Ödül Listesi
         const rewardsList = [
+            { label: "5.000 PTS", value: 5000 },
+            { label: "10.000 PTS", value: 10000 },
+            { label: "25.000 PTS", value: 25000 },
             { label: "50 PTS", value: 50 },
             { label: "200 PTS", value: 200 },
             { label: "500 PTS", value: 500 },
             { label: "1.000 PTS", value: 1000 },
-            { label: "2.500 PTS", value: 2500 },
-            { label: "5.000 PTS", value: 5000 },
-            { label: "10.000 PTS", value: 10000 },
-            { label: "25.000 PTS", value: 25000 }
+            { label: "2.500 PTS", value: 2500 }
         ];
 
         window.spinWheel = async () => {
@@ -420,13 +419,12 @@
             await updateScore(-2500);
 
             const selectedIndex = Math.floor(Math.random() * rewardsList.length);
-            const numOptions = rewardsList.length;
-            const degreesPerSegment = 360 / numOptions;
+            const degreesPerSegment = 360 / rewardsList.length;
 
-            // Çark Dönüş Hesabı - İşaretçi Üstte (270 derece) olduğu için tam hizalama hesabı
-            const targetDegree = (360 - (selectedIndex * degreesPerSegment)) - (degreesPerSegment / 2);
+            // Tam hassas açı hesabı (Ok tam üstte durduğu için)
+            const stopDegree = (360 - (selectedIndex * degreesPerSegment)) - (degreesPerSegment / 2);
             const extraRotations = 5 * 360;
-            currentWheelRotation += extraRotations + targetDegree - (currentWheelRotation % 360);
+            currentWheelRotation += extraRotations + stopDegree - (currentWheelRotation % 360);
 
             const wheelCanvas = document.getElementById('wheelCanvas');
             wheelCanvas.style.transform = `rotate(${currentWheelRotation}deg)`;
@@ -520,12 +518,13 @@
             const ctx = canvas.getContext('2d');
             const numOptions = rewardsList.length;
             const arcSize = (2 * Math.PI) / numOptions;
-            const colors = ["#00f3ff", "#ff003c", "#00f3ff", "#333", "#eab308", "#555", "#00ff66", "#0066ff"];
+            const colors = ["#555", "#00ff66", "#0066ff", "#00f3ff", "#ff003c", "#00f3ff", "#333", "#eab308"];
 
             ctx.clearRect(0, 0, 320, 320);
 
+            // Çarkı tam yukarıdan (12 yönünden) başlatacak şekilde -PI/2 ofseti veriyoruz
             for (let i = 0; i < numOptions; i++) {
-                const angle = i * arcSize;
+                const angle = (i * arcSize) - (Math.PI / 2);
                 ctx.beginPath();
                 ctx.fillStyle = colors[i];
                 ctx.moveTo(160, 160);
@@ -612,13 +611,13 @@
                         document.getElementById('buyRpsBtn').innerText = userData.rpsGame ? "SAHİPSİN" : "AÇ (5.000 PTS)";
                         document.getElementById('buyRpsBtn').disabled = !!userData.rpsGame;
 
-                        document.getElementById('buyFrameBtn').innerText = userData.neonFrame ? "SAHİPSİN" : "SATIN AL (50.000 PTS)";
+                        document.getElementById('buyFrameBtn').innerText = userData.neonFrame ? "SAHİPSİN" : "SATIN AL (300.000 PTS)";
                         document.getElementById('buyFrameBtn').disabled = !!userData.neonFrame;
 
-                        document.getElementById('buyBoostBtn').innerText = userData.hasBoost ? "SAHİPSİN" : "SATIN AL (100.000 PTS)";
+                        document.getElementById('buyBoostBtn').innerText = userData.hasBoost ? "SAHİPSİN" : "SATIN AL (500.000 PTS)";
                         document.getElementById('buyBoostBtn').disabled = !!userData.hasBoost;
 
-                        document.getElementById('buyVipBtn').innerText = userData.isVip ? "SAHİPSİN" : "SATIN AL (250.000 PTS)";
+                        document.getElementById('buyVipBtn').innerText = userData.isVip ? "SAHİPSİN" : "SATIN AL (850.000 PTS)";
                         document.getElementById('buyVipBtn').disabled = !!userData.isVip;
 
                         if (userData.neonFrame) {
